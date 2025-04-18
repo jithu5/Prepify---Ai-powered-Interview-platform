@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "app/generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String              @id @default(cuid())
+  username          String              @unique
+  firstname         String
+  lastname          String
+  phonenumber       String
+  email             String              @unique
+  password          String
+  dob               DateTime?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+  interviewSessions Interview_session[] // Relation to Interview_session model
+  questions         Question[] // Relation to Question model
+}
+
+model Interview_session {
+  id            String     @id @default(cuid())
+  user          User       @relation(fields: [user_id], references: [id],onDelete: Cascade)
+  user_id       String
+  type          String
+  start_time    DateTime   @default(now())
+  end_time      DateTime?
+  position_type String
+  level         String
+  questions     Question[] // Relation to Question model
+}
+
+model Question {
+  id                   String            @id @default(cuid())
+  user                 User              @relation(fields: [user_id], references: [id],onDelete: Cascade)
+  user_id              String
+  interview_session    Interview_session @relation(fields: [interview_session_id], references: [id],onDelete: Cascade)
+  interview_session_id String
+  question             String?
+  answer               String?
+  response             String?
+}
