@@ -1,19 +1,35 @@
-import { Flex, Heading } from "@chakra-ui/react"
+"use client"
+import { useSession } from "next-auth/react"
+import { Button } from "./ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import Link from "next/link"
 
 function NavBar() {
-    return (
-        <nav className="w-full px-10 py-12">
-            <Flex justifyContent={"space-between"} alignItems={"center"} paddingX={"4"}>
-                <Heading size={"6xl"} fontWeight={"bold"}>PREPIFY</Heading>
+    const { data: session, status } = useSession()
 
-                <Flex alignItems={"center"} gap={4}>
-                    <ul className="flex gap-4">
-                        <li className="text-lg font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">Home</li>
-                        <li className="text-lg font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">About</li>
-                        <li className="text-lg font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">Contact</li>
-                    </ul>
-                </Flex>
-            </Flex>
+    return (
+        <nav className="w-full bg-white px-10 py-6 flex items-center justify-between">
+            <Link href={'/'} className="cursor-pointer">
+            <h1 className="text-4xl font-bold text-black cursor-pointer">PREPIFY</h1>
+            </Link>
+            <div className="flex items-center gap-10">
+                {
+                    session?.user ? (
+                        <>
+                            <Button>Get Started</Button>
+                            <Avatar>
+                                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                <AvatarFallback>{session.user?.email?.[0]?.toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                        </>
+                    ) : (
+                        <>
+                            <Button variant="outline" className="bg-black text-white hover:bg-gray-800">Login</Button>
+                            <Button variant="outline" className="bg-black text-white hover:bg-gray-800"></Button>
+                        </>
+                    )
+                }
+            </div>
         </nav>
     )
 }

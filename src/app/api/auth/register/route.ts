@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -12,8 +12,6 @@ const registerSchema = z.object({
     email: z.string().email("Invalid email format"),
     password: z.string().min(8, "Password should be at least 8 characters"), // Update based on your password strength policy
 });
-
-const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
     try {

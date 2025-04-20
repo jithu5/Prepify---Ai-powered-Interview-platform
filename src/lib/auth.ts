@@ -1,10 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
+import {prisma} from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-// import GoogleProvider from "next-auth/providers/google";
-
-const prisma = new PrismaClient()
 
 export const authOptions: NextAuthOptions = {
     providers:[
@@ -62,20 +59,23 @@ export const authOptions: NextAuthOptions = {
             }
         })
     ],
-    callbacks:{
-        async jwt({token,user}) {
+    callbacks: {
+        async jwt({ token, user }) {
             if (user) {
-                token.id = user.id
+                token.id = user.id;
+                token.email = user.email;  // Optionally add other fields to the token
             }
-            return token
+            return token;
         },
-        async session({session,token}) {
+        async session({ session, token }) {
             if (token && session?.user) {
-                session.user.id = token.id as string
+                session.user.id = token.id as string;  // Attach the token data to the session
+                session.user.email = token.email as string;  // Optional: If you want to attach the email as well
             }
-            return session
+            return session;
         },
     },
+
     pages:{
         signIn:"/login",
         error:"/login"

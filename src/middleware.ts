@@ -14,22 +14,28 @@ export async function middleware(request: NextRequest) {
 
     console.log('url', url)
 
+    if (url.pathname === '/') {
+        return NextResponse.redirect(new URL('/home', request.url))
+    }
+
     // If the user is authenticated, redirect to the home page
     if (token && (url.pathname === '/register' || url.pathname === '/login')) {
         // Redirect to the home page
         return NextResponse.redirect(new URL('/home', request.url))
     }
-    
+
     // If the user is not authenticated, redirect to the login page
     if (!token && (url.pathname !== '/home' && url.pathname !== '/register' && url.pathname !== '/login')) {
         // Redirect to the login page
         return NextResponse.redirect(new URL('/login', request.url))
     }
-    
-    return NextResponse.redirect(new URL('/home', request.url))
+
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-    matcher: ['/', '/register', '/login', '/home/:path*', '/profile/:path*']
+    matcher: [
+        '/((?!api|_next/static|_next/image|favicon.ico).*)'
+    ],
+
 }

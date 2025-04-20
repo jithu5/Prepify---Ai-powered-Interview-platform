@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession, User } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma"
 import OpenAI from "openai";
 
 console.log(process.env.DEEPSEEEK_API_KEY)
@@ -10,8 +10,6 @@ const openai = new OpenAI({
     baseURL: 'https://api.deepseek.com',
     apiKey: process.env.DEEPSEEEK_API_KEY!
 })
-
-const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
     try {
