@@ -63,7 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         let completion;
 
-        let introduction = `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}`
+        let introduction = `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}, introduce yourself as Ai only for first time and make it formal , dont respond about it too`
 
         if (existingQuestions.length > 0) {
             const lastQuestion = existingQuestions[0].question;
@@ -71,35 +71,35 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             // check if lastquestion is answered
             const lastQuestionAnswered = existingQuestions[0].answer;
             if (!lastQuestionAnswered) {
-                return NextResponse.json({ message: "Last question needs to be answered", success: false ,questions:allExistingQuestions}, { status: 400 });
+                return NextResponse.json({ message: "Last question needs to be answered", success: false, questions: allExistingQuestions }, { status: 400 });
             }
-          try {
-            //   completion = await openai.chat.completions.create({
-            //       messages: [{ role: "system", content: introduction },
-            //       { role: "assistant", content: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question and the feedback has also been provide so no need for that.` },
-            //       { role: "user", content: "Start the interview with self intro" }
-            //       ],
-            //       model: "deepseek-chat",
-            //   });
-              completion = await ai.models.generateContent({
-                  model: "gemini-2.0-flash",
-                  contents: [
-                      { role:"user",parts: [{ text: introduction }] },
-                      { role:"user",parts: [{ text: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question, and the feedback has also been provided so no need for that.` }] },
-                      {
-                          role: "model", parts: [{ text: "Only asks question just the sentence" }]
-                      },
-                  ],
-              });
+            try {
+                //   completion = await openai.chat.completions.create({
+                //       messages: [{ role: "system", content: introduction },
+                //       { role: "assistant", content: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question and the feedback has also been provide so no need for that.` },
+                //       { role: "user", content: "Start the interview with self intro" }
+                //       ],
+                //       model: "deepseek-chat",
+                //   });
+                completion = await ai.models.generateContent({
+                    model: "gemini-2.0-flash",
+                    contents: [
+                        { role: "user", parts: [{ text: introduction }] },
+                        { role: "user", parts: [{ text: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question, and the feedback has also been provided so no need for that.` }] },
+                        {
+                            role: "model", parts: [{ text: "Only asks question just the sentence" }]
+                        },
+                    ],
+                });
 
-              console.log(completion.text);
-          } catch (error) {
-              console.error("OpenAI Error", error);
-              return NextResponse.json({
-                  success: false,
-                  message: "OpenAI generation failed",
-              }, { status: 500 });
-          }
+                console.log(completion.text);
+            } catch (error) {
+                console.error("OpenAI Error", error);
+                return NextResponse.json({
+                    success: false,
+                    message: "OpenAI generation failed",
+                }, { status: 500 });
+            }
         }
         if (existingQuestions.length === 0) {
 
@@ -110,15 +110,17 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                 //     ],
                 //     model: "deepseek-chat",
                 // });
-                completion  = await ai.models.generateContent({
+                completion = await ai.models.generateContent({
                     model: "gemini-2.0-flash",
                     contents: [
-                        { role:"model", parts: [{ text: introduction }] },
-                        { role:"model", parts: [{ text: "Start the interview with self intro" }]
-                     },
-                        { role:"model", parts: [{ text: "Only asks question just the sentence" }]
-                     },
-                       
+                        { role: "model", parts: [{ text: introduction }] },
+                        {
+                            role: "model", parts: [{ text: "Start the interview with self intro" }]
+                        },
+                        {
+                            role: "model", parts: [{ text: "Only asks question just the sentence" }]
+                        },
+
                     ],
                 });
             } catch (error) {
@@ -197,56 +199,72 @@ export async function POST(request: NextRequest, { params }: { params: { session
 
         const { answer, questionId } = body;
 
+        console.log(answer, questionId)
+
         if (!answer || !questionId) {
-            return NextResponse.json({ message: "Answer is required", success: false }, { status: 400 });
+            return NextResponse.json({ message: "answer and questionId are required", success: false }, { status: 400 });
         }
 
         const question = await prisma.question.findUnique({
             where: { id: questionId }
         })
 
-        const completion = await openai.chat.completions.create({
-            messages: [
+        // const completion = await openai.chat.completions.create({
+        //     messages: [
+        //         {
+        //             role: "system",
+        //             content: `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}`
+        //         },
+        //         {
+        //             role: "system",
+        //             content: `The question you asked was: "${question?.question}". Provide feedback and score the answer on a scale of 1 to 10 as an object.`
+        //         },
+        //         {
+        //             role: "user",
+        //             content: `${answer}`
+        //         }
+        //     ],
+        //     model: "deepseek-chat",
+        // });
+        const completion = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: [
+                { role: "model", parts: [{ text: `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}` }] },
                 {
-                    role: "system",
-                    content: `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}`
+                    role: "model", parts: [{ text: `The question you asked was: "${question?.question}". Provide feedback and score the answer on a scale of 1 to 10 as an object.` }]
                 },
                 {
-                    role: "system",
-                    content: `The question you asked was: "${question?.question}". Provide feedback and score the answer on a scale of 1 to 10 as an object.`
+                    role: "model", parts: [{
+                        text: "  You are an AI interviewer.I will provide a candidate's answer, and you will give feedback and a score.Use the STAR method(Situation, Task, Action, Result) to evaluate the answer.Only return a JSON object in the following format: feedback: feedback here based on STAR with suggestions.,score: 1 - 10   Do NOT include any explanation or text outside of this object.Do NOT say anything else.I will be extracting with json.parse"
+                    }]
                 },
                 {
-                    role: "user",
-                    content: `${answer}`
-                }
+                    role: "user", parts: [{ text: `${answer}` }]
+                },
+
             ],
-            model: "deepseek-chat",
         });
         // Extracting the AI's response from the completion
-        const aiResponse = completion.choices[0].message.content;
+        const aiResponse = completion.text;
+        console.log(aiResponse)
 
         if (!aiResponse) {
             return NextResponse.json({ message: "Error generating AI response", success: false }, { status: 400 });
         }
 
-        // Parse the AI response assuming it's in JSON format
-        let feedback;
-        let score;
-        try {
-            const parsedResponse = JSON.parse(aiResponse); // Assuming AI response is in JSON format
-            feedback = parsedResponse?.feedback;
-            score = parsedResponse?.score;
-        } catch (error) {
-            return NextResponse.json({ message: "Error parsing AI response", success: false }, { status: 400 });
-        }
+        // Clean up the response before parsing
+        const cleanedResponse = aiResponse.trim().replace(/^```json/, '').replace(/```$/, '').trim();
 
-        console.log("AI Feedback:", feedback);
-        console.log("AI Score:", score);
+        // Now parse the cleaned JSON
+        const parsedResponse = JSON.parse(cleanedResponse);
+        const feedback = parsedResponse?.feedback;
+        const score = parsedResponse?.score;
 
         if (!feedback || !score) {
             return NextResponse.json({ message: "Error parsing AI response", success: false }, { status: 400 });
 
         }
+        console.log(feedback)
 
         const updateQuestion = await prisma.question.update({
             where: { id: questionId },
