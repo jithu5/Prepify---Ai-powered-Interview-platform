@@ -35,20 +35,32 @@ function InterviewSectionPage() {
         const fetchInterviewData = async () => {
             try {
                 const { data } = await axios.get(`/api/interview-questions/${interviewId}`);
-                setSessions(data.question); // Assuming the API returns the sessions in this format
+                console.log(data.question)
                 const questionLength = data.question.length;
+                console.log(questionLength)
                 setQuestionId(data.question[questionLength - 1]?.id); // Set the last question ID as default
+                console.log(questionId)
                 console.log(data)
+                setSessions((prevSessions) => [...prevSessions, data.question]); // Assuming the API returns the sessions in this format
                 if (!data.success) {
                     toast.error(data.message);
+                    const questionLength = data.questions.length;
+                    console.log(questionLength)
+                    setQuestionId(data.questions[questionLength - 1]?.id); // Set the last question ID as default
+                    console.log(questionId)
                     setSessions(data.questions); // Assuming the API returns the sessions in this format
                     return
                 }
                 toast.success(data.message);
             } catch (error: any) {
-                const errMessage = error?.response?.data?.message || 'An error occurred while fetching interview data.';
-                console.error('Error fetching interview data:', errMessage);
+                const questionLength = error?.response?.data.questions.length;
+                console.log(error?.response?.data.questions)
+                console.log(questionLength)
+                setQuestionId(error?.response?.data.questions[0].id); // Set the last question ID as default
+                console.log('question id ',questionId)
                 setSessions(error?.response?.data.questions); // Assuming the API returns the sessions in this format
+                const errMessage = error?.response?.data?.message || 'An error occurred while fetching interview data.';
+                console.log('Error fetching interview data:', errMessage);
                 toast.error(errMessage);
             }
         };
@@ -90,6 +102,9 @@ function InterviewSectionPage() {
             const errMessage = error?.response?.data?.message || 'An error occurred while submitting your answer.';
             console.error('Error submitting answer:', errMessage);
             toast.error(errMessage);
+        }
+        finally{
+            setAnswer(''); // Clear the answer input after submission
         }
     }
 
