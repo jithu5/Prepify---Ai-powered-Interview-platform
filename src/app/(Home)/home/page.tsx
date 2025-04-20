@@ -6,7 +6,7 @@ import React from 'react'
 function HomePage() {
   const router  = useRouter()
   return (
-    <div className='w-full min-h-screen bg-white text-black '>
+    <div className='w-full min-h-screen bg-white text-black mt-24'>
       <section className="text-center py-20 px-6 md:px-20 bg-gradient-to-b from-white to-slate-100">
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           Ace Your Next Interview with AI

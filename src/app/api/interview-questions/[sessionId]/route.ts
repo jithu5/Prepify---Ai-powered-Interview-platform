@@ -3,13 +3,18 @@ import { getServerSession, User } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma"
 import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 
 console.log(process.env.DEEPSEEEK_API_KEY)
+
+// GEMINI_API_KEY
 
 const openai = new OpenAI({
     baseURL: 'https://api.deepseek.com',
     apiKey: process.env.DEEPSEEEK_API_KEY!
 })
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
     try {
@@ -33,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
 
-        const id = params.sessionId;
+        const id = await params.sessionId;
 
         console.log('session id', id)
 
@@ -50,6 +55,11 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             orderBy: { created_at: 'desc' }, // Sorting to get the latest question asked
             take: 1, // Fetch only the last question asked
         });
+        const allExistingQuestions = await prisma.question.findMany({
+            where: { interview_session_id: interviewSession.id },
+            orderBy: { created_at: 'asc' }, // Sorting to get the latest question asked
+
+        });
 
         let completion;
 
@@ -57,22 +67,67 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         if (existingQuestions.length > 0) {
             const lastQuestion = existingQuestions[0].question;
-            completion = await openai.chat.completions.create({
-                messages: [{ role: "system", content: introduction },
-                { role: "assistant", content: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question and the feedback has also been provide so no need for that.` },
-                { role: "user", content: "Start the interview with self intro" }
-                ],
-                model: "deepseek-chat",
-            });
+
+            // check if lastquestion is answered
+            const lastQuestionAnswered = existingQuestions[0].answer;
+            if (!lastQuestionAnswered) {
+                return NextResponse.json({ message: "Last question needs to be answered", success: false ,questions:allExistingQuestions}, { status: 400 });
+            }
+          try {
+            //   completion = await openai.chat.completions.create({
+            //       messages: [{ role: "system", content: introduction },
+            //       { role: "assistant", content: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question and the feedback has also been provide so no need for that.` },
+            //       { role: "user", content: "Start the interview with self intro" }
+            //       ],
+            //       model: "deepseek-chat",
+            //   });
+              completion = await ai.models.generateContent({
+                  model: "gemini-2.0-flash",
+                  contents: [
+                      { role:"user",parts: [{ text: introduction }] },
+                      { role:"user",parts: [{ text: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question, and the feedback has also been provided so no need for that.` }] },
+                      {
+                          role: "model", parts: [{ text: "Only asks question just the sentence" }]
+                      },
+                  ],
+              });
+
+              console.log(completion.text);
+          } catch (error) {
+              console.error("OpenAI Error", error);
+              return NextResponse.json({
+                  success: false,
+                  message: "OpenAI generation failed",
+              }, { status: 500 });
+          }
         }
         if (existingQuestions.length === 0) {
 
-            completion = await openai.chat.completions.create({
-                messages: [{ role: "system", content: introduction },
-                { role: "user", content: "Start the interview with self intro" }
-                ],
-                model: "deepseek-chat",
-            });
+            try {
+                // completion = await openai.chat.completions.create({
+                //     messages: [{ role: "system", content: introduction },
+                //     { role: "user", content: "Start the interview with self intro" }
+                //     ],
+                //     model: "deepseek-chat",
+                // });
+                completion  = await ai.models.generateContent({
+                    model: "gemini-2.0-flash",
+                    contents: [
+                        { role:"model", parts: [{ text: introduction }] },
+                        { role:"model", parts: [{ text: "Start the interview with self intro" }]
+                     },
+                        { role:"model", parts: [{ text: "Only asks question just the sentence" }]
+                     },
+                       
+                    ],
+                });
+            } catch (error) {
+                console.error("OpenAI Error", error);
+                return NextResponse.json({
+                    success: false,
+                    message: "OpenAI generation failed",
+                }, { status: 500 });
+            }
         }
 
         if (!completion) {
@@ -80,9 +135,9 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         }
 
-        console.log(completion.choices[0].message.content);
+        console.log(completion.text);
 
-        const question = completion.choices[0].message.content;
+        const question = completion.text;
 
         const createQuestion = await prisma.question.create({
             data: {
@@ -126,7 +181,7 @@ export async function POST(request: NextRequest, { params }: { params: { session
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
 
-        const id = params.sessionId;
+        const id = await params.sessionId;
 
         console.log('session id', id)
 

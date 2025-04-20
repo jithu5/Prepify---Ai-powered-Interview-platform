@@ -5,10 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import Link from "next/link"
 
 function NavBar() {
-    const { data: session, status } = useSession()
+    const { data: session } = useSession()
 
     return (
-        <nav className="w-full bg-white px-10 py-6 flex items-center justify-between">
+        <nav className="w-full bg-white px-10 py-6 flex items-center justify-between fixed left-0 top-0 z-50 shadow-md">
             <Link href={'/'} className="cursor-pointer">
             <h1 className="text-4xl font-bold text-black cursor-pointer">PREPIFY</h1>
             </Link>

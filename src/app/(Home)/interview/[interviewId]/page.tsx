@@ -3,77 +3,167 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import { toast } from "sonner"
 
 function InterviewSectionPage() {
     const { interviewId } = useParams();
-    const [sessions, setSessions] = useState([
-        {
-            question: 'Tell me about a time you solved a difficult technical problem.',
-            answer: 'In my previous project, I had to optimize database queries to improve performance...',
-            response: 'Great answer! You can improve it further by mentioning specific tools or techniques.',
-        },
-        {
-            question: 'What is the difference between REST and GraphQL?',
-            answer: '', // No answer provided yet
-            response: '', // Response pending
-        },
-        // Add more sessions as needed
-    ]);
+
+    interface Response {
+        feedback: string;
+        score?: number;
+    }
+    interface Session {
+        question?: string;
+        answer?: string;
+        response?: Response;
+        id?: string;
+    }
+
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [answer, setAnswer] = useState<string>('');
+    const [questionId, setQuestionId] = useState<string>('');
+
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [sessions]);
+
+    useEffect(() => {
+        const fetchInterviewData = async () => {
+            try {
+                const { data } = await axios.get(`/api/interview-questions/${interviewId}`);
+                setSessions(data.question); // Assuming the API returns the sessions in this format
+                const questionLength = data.question.length;
+                setQuestionId(data.question[questionLength - 1]?.id); // Set the last question ID as default
+                console.log(data)
+                if (!data.success) {
+                    toast.error(data.message);
+                    setSessions(data.questions); // Assuming the API returns the sessions in this format
+                    return
+                }
+                toast.success(data.message);
+            } catch (error: any) {
+                const errMessage = error?.response?.data?.message || 'An error occurred while fetching interview data.';
+                console.error('Error fetching interview data:', errMessage);
+                setSessions(error?.response?.data.questions); // Assuming the API returns the sessions in this format
+                toast.error(errMessage);
+            }
+        };
+
+        fetchInterviewData();
+    }, [])
+    console.log(sessions)
+
+    const handleAnswerSubmit = async (answer: string, questionId: string) => {
+        try {
+            const { data } = await axios.post(`/api/interview-questions/${interviewId}`, {
+                answer: answer,
+                questionId: questionId
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true
+            })
+
+            if (data.success) {
+                setSessions((prevSessions) =>
+                    prevSessions.map((session) =>
+                        session.id === questionId
+                            ? {
+                                ...session,
+                                answer: answer, // fix here
+                                response: { feedback: data.feedback, score: data.score }, // assuming your API returns feedback here
+                            }
+                            : session
+                    )
+                );
+
+                toast.success(data.message);
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error: any) {
+            const errMessage = error?.response?.data?.message || 'An error occurred while submitting your answer.';
+            console.error('Error submitting answer:', errMessage);
+            toast.error(errMessage);
+        }
+    }
+
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-10 md:px-12 lg:px-32">
-            <h1 className="text-3xl font-bold text-center mb-10">
-                Interview Session #{interviewId}
-            </h1>
+        <div className="min-h-screen bg-slate-50 pt-24">
+            <h1 className="text-3xl font-bold text-center mb-6">Interview Session #{interviewId}</h1>
 
-            <div className="space-y-10">
-                {sessions.map((session, index) => (
-                    <div key={index} className="space-y-6 pb-6">
-                        {/* Question, Answer and Response (Vertically stacked) */}
-                        <div className="flex flex-col gap-4">
-                            {/* Question Section (Right-aligned) */}
+            {/* Chat Container */}
+            <div className="h-[70vh] overflow-y-auto px-4 md:px-12 lg:px-48 space-y-8 pb-36">
+                {sessions.length > 0 && sessions.map((session, index) => (
+                    <div key={index} className="space-y-4">
+                        {/* AI Question */}
+                        {session?.question && (
+                            <div className="flex items-start gap-3">
+                                <div className="bg-white border border-gray-200 shadow-sm p-3 rounded-lg max-w-lg text-gray-900">
+                                    <p className="font-medium text-gray-700">AI:</p>
+                                    <p>{session?.question}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* User Answer */}
+                        {session.answer && (
                             <div className="flex justify-end gap-3">
-                                <div className="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xl">
-                                    <p className="text-lg">{session.question}</p>
+                                <div className="bg-blue-600 text-white p-3 rounded-lg max-w-lg shadow-md">
+                                    <p className="font-medium text-sm mb-1">You:</p>
+                                    <p>{session.answer}</p>
                                 </div>
                             </div>
+                        )}
 
-                            {/* User's Answer (Full-width) */}
-                            <div className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow-sm border border-blue-200">
-                                <p className="text-lg text-blue-600 mb-1 font-medium">Your Answer</p>
-                                {/* Conditional Rendering for User Answer */}
-                                {session.answer ? (
-                                    <p className="text-gray-800 text-lg">{session.answer}</p>
-                                ) : (
-                                    <p className="text-gray-400">Waiting for your answer...</p>
-                                )}
+                        {/* Awaiting Answer */}
+                        {!session.answer && (
+                            <div className="flex justify-end gap-3">
+                                <div className="bg-gray-100 text-gray-500 p-3 rounded-lg max-w-xs">
+                                    <p className="text-sm">Waiting for your answer...</p>
+                                </div>
                             </div>
+                        )}
 
-                            {/* AI Response (Right-aligned, conditional rendering) */}
-                            {session.response ? (
-                                <div className="flex justify-end gap-3">
-                                    <div className="bg-green-50 text-green-800 p-3 rounded-lg max-w-xl">
-                                        <p className="text-lg">{session.response}</p>
-                                    </div>
+                        {/* AI Response */}
+                        {session.response ? (
+                            <div className="flex items-start gap-3">
+                                <div className="bg-green-100 text-green-900 p-3 rounded-lg max-w-lg shadow-sm border border-green-200">
+                                    <p className="font-medium text-sm mb-1">AI Feedback:</p>
+                                    <p>{session.response.feedback}</p>
                                 </div>
-                            ) : (
-                                <div className="flex justify-end gap-3">
-                                    <div className="bg-gray-100 text-gray-500 p-3 rounded-lg max-w-xs">
-                                        <p className="text-sm">Response is being processed...</p>
-                                    </div>
+                            </div>
+                        ) : session.answer ? (
+                            <div className="flex items-start gap-3">
+                                <div className="bg-gray-100 text-gray-500 p-3 rounded-lg max-w-xs">
+                                    <p className="text-sm">AI is analyzing your answer...</p>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        ) : null}
 
-                        {/* Add a separation line for clarity */}
-                        {index < sessions.length - 1 && <hr className="border-t border-gray-200 mt-6" />}
+                        <hr className="border-t border-gray-200 mt-6" />
                     </div>
                 ))}
+
+                <div ref={bottomRef} />
             </div>
-            <div className='fixed bottom-0 w-full left-0 bg-gray-100 h-32 py-10 px-10 flex items-center justify-center gap-5'>
-                <Input className='w-[75%] ' />
-                <Button>Submit</Button>
+
+            {/* Input Fixed at Bottom */}
+            <div className="fixed bottom-0 w-full left-0 bg-white border-t border-gray-200 px-4 md:px-12 lg:px-48 py-4 flex items-center gap-4">
+                <Input
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    className="flex-1"
+                    placeholder="Type your answer..."
+                />
+
+                <Button onClick={() => handleAnswerSubmit(answer, questionId)}>Send</Button>
             </div>
         </div>
     );
