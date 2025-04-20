@@ -3,6 +3,8 @@
 # Prisma generated client
 */generated/
 
+*/*/generated
+
 # Other build artifacts
 /dist/
 
