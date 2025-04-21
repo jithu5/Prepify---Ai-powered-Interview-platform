@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource-variable/quicksand": "^5.2.6",
+    "@fontsource/titillium-web": "^5.2.5",
     "@google/genai": "^0.9.0",
     "@prisma/client": "^6.6.0",
     "@radix-ui/react-avatar": "^1.1.6",
