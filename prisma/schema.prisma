@@ -56,7 +56,7 @@ model Question {
 
 model Technology {
   id                   String            @id @default(cuid())
-  name                 String            @unique
+  name                 String            
   user                 User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id              String
   interview_session    Interview_session @relation(fields: [interview_session_id], references: [id], onDelete: Cascade)

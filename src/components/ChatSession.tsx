@@ -29,6 +29,13 @@ export default function ChatSession({ session }: Props) {
                 ? <ChatBubble sender="feedback" message={session.response.feedback} />
                 : session.answer && <ChatBubble sender="placeholder" message="AI is analyzing your answer..." />
             }
+            {
+                session.response?.score && (
+                    <div className="text-center text-lg text-stone-700">
+                        Score: {session.response.score} / 10
+                        </div>
+                )   
+            }
             <hr className="border-t border-gray-200 mt-6" />
         </div>
     );
