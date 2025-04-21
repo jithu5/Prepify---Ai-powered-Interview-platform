@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PrepIfy - AI-Powered Interview Preparation Platform
 
-## Getting Started
+PrepIfy is an intelligent interview preparation platform that leverages AI to provide personalized interview practice sessions. The platform helps candidates prepare for both technical and behavioral interviews by generating relevant questions, providing real-time feedback, and tracking progress.
 
-First, run the development server:
+The application uses Next.js for the frontend, PostgreSQL for data storage, and integrates with both OpenAI and Google's Generative AI for question generation and answer evaluation. It features a secure authentication system with Next-Auth, real-time feedback mechanisms, and a user-friendly interface for managing interview sessions.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚧 Under Development
+
+This project is currently a work in progress and not yet ready for production use.
+
+We're actively working on building and testing features, and things may break or change frequently.  
+Feel free to explore the code, give feedback, or contribute, but please note that this is **not yet stable**.
+
+Stay tuned for updates!
+
+## Repository 
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+.
+├── src/                          # Source code directory
+│   ├── app/                     # Next.js application routes and pages
+│   │   ├── (Home)/             # Home-related pages and layouts
+│   │   ├── api/                # API routes for authentication and interview sessions
+│   │   └── components/         # Reusable UI components
+│   ├── lib/                    # Utility functions and configurations
+│   │   ├── auth.ts            # Authentication configuration
+│   │   ├── prisma.ts          # Database client configuration
+│   │   └── utils.ts           # Helper utilities
+├── prisma/                     # Database schema and migrations
+│   └── migrations/            # Database migration files
+├── public/                     # Static assets
+└── components.json            # UI component configuration
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage Instructions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
 
-## Learn More
+- Node.js 16.x or later
+- PostgreSQL 12.x or later
+- npm or yarn package manager
+- OpenAI API key (for AI features)
+- Google Cloud API key (for AI features)
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Clone the repository
+git clone <repository-url>
+cd prepify
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Install dependencies
+npm install
 
-## Deploy on Vercel
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your database and API credentials
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Run database migrations
+npx prisma migrate dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Start development server
+npm run dev
+```
+
+### Quick Start
+
+1. Register an account or log in to an existing account
+2. Navigate to the interview preparation section
+3. Select your target position and interview type
+4. Start the interview session
+
+### More Detailed Examples
+
+```typescript
+// Starting a new interview session
+const startSession = async () => {
+  const response = await fetch('/api/start-interview-session', {
+    method: 'POST',
+    body: JSON.stringify({
+      position: 'Software Engineer',
+      type: 'technical',
+      level: 'senior'
+    })
+  });
+  const session = await response.json();
+};
+```
+
+### Troubleshooting
+
+- **Authentication Issues**
+  - Error: "Unauthorized"
+  - Solution: Ensure you're logged in and your session hasn't expired
+  - Check browser console for detailed error messages
+
+- **Database Connection Issues**
+  - Error: "Could not connect to database"
+  - Solution: Verify PostgreSQL is running and credentials are correct
+  - Check DATABASE_URL in .env file
+
+## Data Flow
+
+PrepIfy follows a structured flow for managing interview sessions and user interactions.
+
+```ascii
+User -> Authentication -> Interview Session -> AI Question Generation -> User Response -> AI Evaluation -> Feedback
+```
+
+- **Key component interactions:**
+
+1. User authentication through NextAuth.js
+2. Session management using Prisma ORM
+3. AI integration through OpenAI/Google GenAI APIs
+4. Real-time feedback processing
+5. Database persistence for session history
+
+## Infrastructure
+
+![Infrastructure diagram](./docs/infra.svg)
+The application uses a PostgreSQL database with the following key resources:
+
+**Database Tables:**
+
+- User: Stores user authentication and profile information
+- InterviewSession: Manages interview sessions and their states
+- Questions: Stores generated questions and user responses
+
+**Authentication:**
+
+- NextAuth.js for user authentication
+- Credentials provider for email/password authentication
+- Session management using JWT tokens
+- Secure password hashing with bcrypt
