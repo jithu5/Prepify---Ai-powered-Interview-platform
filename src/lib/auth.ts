@@ -30,7 +30,8 @@ export const authOptions: NextAuthOptions = {
                        select:{
                         password:true,
                         id:true,
-                        email:true
+                        email:true,
+                        firstname:true
                        }
                     })
 
@@ -46,7 +47,8 @@ export const authOptions: NextAuthOptions = {
 
                     return{
                         id:user.id,
-                        email:user.email
+                        email:user.email,
+                        name:user.firstname
                     }
                     
                 } catch (error:any) {
@@ -63,7 +65,8 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.email = user.email;  // Optionally add other fields to the token
+                token.email = user.email;
+                token.name = user.name  // Optionally add other fields to the token
             }
             return token;
         },
@@ -71,6 +74,7 @@ export const authOptions: NextAuthOptions = {
             if (token && session?.user) {
                 session.user.id = token.id as string;  // Attach the token data to the session
                 session.user.email = token.email as string;  // Optional: If you want to attach the email as well
+                session.user.name = token.name as string;  // Optional: If you want to attach the name as well
             }
             return session;
         },

@@ -14,7 +14,7 @@ function HomePage() {
     <div className="w-full min-h-screen bg-white text-black mt-24">
       {/* Hero Section */}
       <section className="text-center py-20 px-6 md:px-20 bg-gradient-to-b from-white to-slate-100">
-        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6" style={{
+        <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold text-gray-900 mb-6" style={{
           fontFamily: 'Titillium Web'
         }}>
           Ace Your Next Interview with AI
@@ -32,10 +32,14 @@ function HomePage() {
       {/* Why Choose Us Section */}
       <section className="py-20 bg-white text-gray-800">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold">Why Choose Our AI-Powered Platform?</h2>
+          <h2 className="text-4xl font-semibold" style={{
+            fontFamily: 'Titillium Web'
+          }}>Why Choose Our AI-Powered Platform?</h2>
           <p className="text-lg text-gray-500 mt-4">Tailored for developers, job seekers, and tech enthusiasts.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6" style={{
+          fontFamily: 'Quicksand Variable'
+        }}>
           <div className="p-6 border rounded-2xl shadow-sm hover:shadow-md transition">
             <h3 className="text-xl font-semibold mb-2">AI-Driven Questions</h3>
             <p className="text-gray-600">Get custom questions based on your experience level, tech stack, and goals.</p>
@@ -54,9 +58,13 @@ function HomePage() {
       {/* How It Works */}
       <section className="py-20 bg-slate-50">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold">How It Works</h2>
+          <h2 className="text-4xl font-semibold" style={{
+            fontFamily: 'Titillium Web'
+          }}>How It Works</h2>
         </div>
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6" style={{
+          fontFamily: 'Quicksand Variable'
+        }}>
           <div className="text-center">
             <h4 className="text-xl font-semibold mb-2">1. Start a Session</h4>
             <p className="text-gray-600">Pick your role, experience level, and tech stack.</p>
@@ -75,10 +83,16 @@ function HomePage() {
       {/* Technologies Covered */}
       <section className="py-20 bg-white">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold">Technologies Covered</h2>
-          <p className="text-gray-600 mt-4">Select from a wide range of modern stacks.</p>
+          <h2 className="text-4xl font-semibold" style={{
+            fontFamily: 'Titillium Web'
+          }}>Technologies Covered</h2>
+          <p className="text-gray-600 mt-4" style={{
+            fontFamily: 'Quicksand Variable'
+          }}>Select from a wide range of modern stacks.</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-6 px-6 text-lg font-medium text-gray-700">
+        <div className="flex flex-wrap justify-center gap-6 px-6 text-lg font-medium text-gray-700" style={{
+          fontFamily: 'Titillium Web'
+        }}>
           <span className="bg-gray-100 px-4 py-2 rounded-xl">React</span>
           <span className="bg-gray-100 px-4 py-2 rounded-xl">Node.js</span>
           <span className="bg-gray-100 px-4 py-2 rounded-xl">TypeScript</span>
@@ -92,7 +106,9 @@ function HomePage() {
       {/* Testimonials */}
       <section className="py-20 bg-slate-50">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-semibold">What Users Say</h2>
+          <h2 className="text-4xl font-semibold" style={{
+            fontFamily: 'Titillium Web'
+          }}>What Users Say</h2>
         </div>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
           <div className="bg-white p-6 rounded-2xl shadow-md">
@@ -112,8 +128,12 @@ function HomePage() {
 
       {/* Final CTA */}
       <section className="py-20 text-center bg-gradient-to-t from-white to-slate-100">
-        <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-        <p className="text-lg text-gray-600 mb-8">Start your first AI interview now and improve with every question.</p>
+        <h2 className="text-4xl font-bold mb-4" style={{
+          fontFamily: 'Titillium Web'
+        }}>Ready to Get Started?</h2>
+        <p className="text-lg text-gray-600 mb-8" style={{
+          fontFamily: 'Quicksand Variable'
+        }}>Start your first AI interview now and improve with every question.</p>
         <Button variant="default" className="text-lg px-8 py-4" onClick={() => router.push('interview')}>
           Start Interview
         </Button>

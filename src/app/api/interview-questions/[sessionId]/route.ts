@@ -68,7 +68,19 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
         const allExistingQuestions = interviewSession[0]?.questions ?? []; // If no 
 
         if (interviewSession[0].max_count === 0) {
-            return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false, questions: allExistingQuestions }, { status: 400 });
+            try {
+                await prisma.interview_session.update({
+                    where: { id: id },
+                    data: {
+                        end_time: new Date()
+                    }
+                })
+                return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false, questions: allExistingQuestions }, { status: 400 });
+            } catch (error) {
+                console.error("Error updating interview session:", error);
+                return NextResponse.json({ message: "Error updating interview session", success: false }, { status: 500 });
+
+            }
 
         }
 

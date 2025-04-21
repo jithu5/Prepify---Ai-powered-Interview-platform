@@ -1,105 +1,163 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useDebounceCallback } from "usehooks-ts"
+import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useDebounceCallback } from "usehooks-ts";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { toast } from "sonner";
+import axios from "axios";
 
 type RegisterForm = {
-    username: string
-    firstname: string
-    lastname: string
-    phonenumber: string
-    email: string
-    password: string
-}
+    username: string;
+    firstname: string;
+    lastname: string;
+    phonenumber: string;
+    email: string;
+    password: string;
+};
 
 export default function RegisterPage() {
-    const { register, handleSubmit, watch, formState: { isSubmitting } } = useForm<RegisterForm>()
-    const [username, setUsername] = useState<string>("")
-    const [usernameAvailable, setUsernameAvailable] = useState<null | boolean>(null)
-    const [error, setError] = useState<string>("")
-    const [success, setSuccess] = useState<string>("")
-    const router = useRouter()
+    const { register, handleSubmit, watch, formState: { isSubmitting } } = useForm<RegisterForm>();
+    const [username, setUsername] = useState<string>("");
+    const [usernameAvailable, setUsernameAvailable] = useState<null | boolean>(null);
+    const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
+    const router = useRouter();
 
-    const debounced = useDebounceCallback(setUsername, 500)
-
-    // Watch username input
-    const watchedUsername = watch("username")
+    const debounced = useDebounceCallback(setUsername, 500);
+    const watchedUsername = watch("username");
 
     useEffect(() => {
-        if (!username) return
+        if (!username) return;
 
         const checkUsername = async () => {
             try {
-                const res = await fetch(`/api/auth/check-username?username=${username}`)
-                const result = await res.json()
-                console.log(result)
-                setUsernameAvailable(result.isAvailable)
+                const res = await fetch(`/api/auth/check-username?username=${username}`);
+                const result = await res.json();
+                setUsernameAvailable(result.isAvailable);
             } catch (err) {
-                console.error("Username check failed", err)
-                setUsernameAvailable(null)
+                console.error("Username check failed", err);
+                setUsernameAvailable(null);
             }
+        };
+
+        checkUsername();
+    }, [username]);
+
+    const onSubmit = async (formData: RegisterForm) => {
+        try {
+
+            const { data } = await axios.post('/api/auth/register', formData, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+            })
+
+            if (data.success) {
+                setSuccess(data.message);
+                toast.success(data.message);
+                router.push("/login");
+            } else {
+                setError(data.message);
+                toast.error(data.message);
+            }
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || "An error occurred. Please try again.";
+            setError(errMsg)
+            toast.error(errMsg)
         }
-
-        checkUsername()
-    }, [username])
-
-    const onSubmit = async (data: RegisterForm) => {
-        const res = await fetch("/api/auth/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        })
-
-        const result = await res.json()
-
-        if (!res.ok) {
-            setError(result.message || "Registration failed")
-        } else {
-            setSuccess("Registration successful. Redirecting to login...")
-            setTimeout(() => router.push("/login"), 2000)
-        }
-    }
+    };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="p-4 max-w-md mx-auto">
-            <h2 className="text-xl font-bold mb-4">Register</h2>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md space-y-4">
+                <h2 className="text-3xl font-bold text-center text-blue-600">Create Account</h2>
 
-            <input
-                {...register("username")}
-                placeholder="Username"
-                className="mb-1 p-2 w-full border"
-                onChange={(e) => {
-                    debounced(e.target.value)
-                }}
-            />
-            {watchedUsername && (
-                <p className={`text-sm mb-2 ${usernameAvailable ? "text-green-600" : "text-red-600"}`}>
-                    {usernameAvailable === null
-                        ? "Checking availability..."
-                        : usernameAvailable
-                            ? "✅ Username is available"
-                            : "❌ Username is taken"}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input
+                        {...register("username")}
+                        placeholder="johndoe123"
+                        onChange={(e) => debounced(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                    {watchedUsername && (
+                        <p className={`text-sm mt-1 ${usernameAvailable ? "text-green-600" : "text-red-600"}`}>
+                            {usernameAvailable === null
+                                ? "Checking availability..."
+                                : usernameAvailable
+                                    ? "✅ Username is available"
+                                    : "❌ Username is taken"}
+                        </p>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input
+                            {...register("firstname")}
+                            placeholder="John"
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input
+                            {...register("lastname")}
+                            placeholder="Doe"
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input
+                        {...register("phonenumber")}
+                        placeholder="+91 98765 43210"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input
+                        {...register("email")}
+                        type="email"
+                        placeholder="you@example.com"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input
+                        {...register("password")}
+                        type="password"
+                        placeholder="••••••••"
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                </div>
+
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {success && <p className="text-green-500 text-sm">{success}</p>}
+
+                <Button
+                    type="submit"
+                    disabled={isSubmitting || usernameAvailable === false}
+                    variant="default" className="text-lg px-8 py-4 cursor-pointer"
+                >
+                    {isSubmitting ? "Registering..." : "Register"}
+                </Button>
+                <p className="text-sm text-center text-gray-500">
+                    Already have an account?{" "}
+                    <Link href="/login" className="text-blue-600 hover:underline">
+                        Login
+                    </Link>
                 </p>
-            )}
-
-            <input {...register("firstname")} placeholder="First Name" className="mb-2 p-2 w-full border" />
-            <input {...register("lastname")} placeholder="Last Name" className="mb-2 p-2 w-full border" />
-            <input {...register("phonenumber")} placeholder="Phone Number" className="mb-2 p-2 w-full border" />
-            <input {...register("email")} type="email" placeholder="Email" className="mb-2 p-2 w-full border" />
-            <input {...register("password")} type="password" placeholder="Password" className="mb-2 p-2 w-full border" />
-
-            {error && <p className="text-red-500 mb-2">{error}</p>}
-            {success && <p className="text-green-500 mb-2">{success}</p>}
-
-            <button
-                type="submit"
-                disabled={isSubmitting || usernameAvailable === false}
-                className="bg-green-500 text-white p-2 w-full"
-            >
-                Register
-            </button>
-        </form>
-    )
+            </form>
+        </div>
+    );
 }
