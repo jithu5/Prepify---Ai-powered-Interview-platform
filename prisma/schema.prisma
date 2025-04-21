@@ -36,7 +36,7 @@ model Interview_session {
   end_time      DateTime?
   position_type String
   level         String
-  max_count     Int          @default(10) 
+  max_count     Int          @default(10)
   questions     Question[] // Relation to Question model
   technologies  Technology[] // Relation to Technology model
 }
@@ -49,7 +49,7 @@ model Question {
   interview_session_id String
   question             String?
   answer               String?
-  response             String?
+  response             Response?
   created_at           DateTime          @default(now())
   updated_at           DateTime          @updatedAt
 }
@@ -63,4 +63,14 @@ model Technology {
   interview_session_id String
   created_at           DateTime          @default(now())
   updated_at           DateTime          @updatedAt
+}
+
+model Response {
+  id          String   @id @default(cuid())
+  question    Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  question_id String   @unique
+  feedback    String?
+  score       Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }

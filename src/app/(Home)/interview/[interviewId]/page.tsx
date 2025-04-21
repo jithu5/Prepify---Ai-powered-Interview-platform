@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { toast } from "sonner"
 
@@ -31,33 +31,38 @@ function InterviewSectionPage() {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [sessions]);
 
+    const fetchInterviewData =useCallback( async () => {
+        try {
+            const { data } = await axios.get(`/api/interview-questions/${interviewId}`);
+            console.log(data.question)
+            setSessions(data.question); // Assuming the API returns the sessions in this format
+            const questionLength = sessions.length;
+            console.log(questionLength)
+            setQuestionId(data.question[questionLength]?.id); // Set the last question ID as default
+            console.log(questionId)
+            console.log(data)
+
+            toast.success(data.message);
+        } catch (error: any) {
+            const questions = error?.response?.data.questions;
+            const questionLength = questions.length;
+            setQuestionId(questions[questionLength - 1].id); // Set the last question ID as default
+            setSessions(questions); // Assuming the API returns the sessions in this format
+            const errMessage = error?.response?.data?.message || 'An error occurred while fetching interview data.';
+            console.log('Error fetching interview data:', errMessage);
+            toast.error(errMessage);
+        }
+    },[])
+
     useEffect(() => {
-        const fetchInterviewData = async () => {
-            try {
-                const { data } = await axios.get(`/api/interview-questions/${interviewId}`);
-                console.log(data.question)
-                setSessions((prevSessions) => [...prevSessions, data.question]); // Assuming the API returns the sessions in this format
-                const questionLength = sessions.length;
-                console.log(questionLength)
-                setQuestionId(data.question[questionLength]?.id); // Set the last question ID as default
-                console.log(questionId)
-                console.log(data)
-         
-                toast.success(data.message);
-            } catch (error: any) {
-                const questions =  error?.response?.data.questions;
-                const questionLength = questions.length;
-                setQuestionId(questions[questionLength - 1].id); // Set the last question ID as default
-                setSessions(questions); // Assuming the API returns the sessions in this format
-                const errMessage = error?.response?.data?.message || 'An error occurred while fetching interview data.';
-                console.log('Error fetching interview data:', errMessage);
-                toast.error(errMessage);
-            }
-        };
 
         fetchInterviewData();
     }, [])
     console.log(sessions)
+
+    const handleQuestionChange = () => {
+        fetchInterviewData()
+    };
 
     const handleAnswerSubmit = async (answer: string, questionId: string) => {
         try {
@@ -156,7 +161,9 @@ function InterviewSectionPage() {
                         <hr className="border-t border-gray-200 mt-6" />
                     </div>
                 ))}
-                <div></div>
+                {<div onClick={handleQuestionChange} className='w-full bg-transparent flex justify-center items-center'>
+                <Button>next question</Button>
+            </div>}
 
                 <div ref={bottomRef} />
             </div>

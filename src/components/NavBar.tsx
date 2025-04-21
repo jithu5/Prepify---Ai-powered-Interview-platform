@@ -12,7 +12,7 @@ function NavBar() {
     return (
         <nav className="w-full bg-white px-10 py-6 flex items-center justify-between fixed left-0 top-0 z-50 shadow-md">
             <Link href={'/'} className="cursor-pointer">
-            <h1 className="text-3xl font-bold text-black cursor-pointer">PREPIFY</h1>
+                <h1 className="text-3xl font-bold text-black cursor-pointer">PREPIFY</h1>
             </Link>
             <div className="flex items-center gap-10">
                 {
@@ -28,7 +28,7 @@ function NavBar() {
                     ) : (
                         <>
                             <Button variant="outline" className="bg-black text-white hover:bg-gray-800">Login</Button>
-                       
+
                         </>
                     )
                 }

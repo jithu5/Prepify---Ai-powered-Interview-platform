@@ -2,18 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getServerSession, User } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma"
-import OpenAI from "openai";
 import { GoogleGenAI } from "@google/genai";
-import { join } from "path";
-
-console.log(process.env.DEEPSEEEK_API_KEY)
-
-// GEMINI_API_KEY
-
-const openai = new OpenAI({
-    baseURL: 'https://api.deepseek.com',
-    apiKey: process.env.DEEPSEEEK_API_KEY!
-})
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
@@ -41,7 +30,9 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                         questions: {
                             orderBy: {
                                 created_at: 'asc', // Sorting questions by created_at in ascending order
-                            },
+                            }, include: {
+                                response: true
+                            }
                         },
                         technologies: {
                             select: {
@@ -59,7 +50,6 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
 
-
         console.log('session id', id)
 
         const interviewSession = user?.interviewSessions || []
@@ -74,10 +64,13 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             take: 1, // Fetch only the last question asked
         });
 
-        console.log(interviewSession[0])
-
         // The interviewSession now includes the questions directly
-        const allExistingQuestions = interviewSession[0]?.questions ?? []; // If no questions, return an empty array
+        const allExistingQuestions = interviewSession[0]?.questions ?? []; // If no 
+
+        if (interviewSession[0].max_count === 0) {
+            return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false, questions: allExistingQuestions }, { status: 400 });
+
+        }
 
         let completion;
         const technologies = interviewSession[0]?.technologies
@@ -144,7 +137,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         }
 
-        console.log(completion.text);
+        // console.log(completion.text);
 
         const question = completion.text;
 
@@ -160,13 +153,31 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             return NextResponse.json({ message: "Error creating question", success: false }, { status: 400 });
         }
 
+        const updatedQuestion = await prisma.interview_session.findUnique({
+            where: { id: id },
+            include: {
+                questions: {
+                    orderBy: {
+                        created_at: 'asc', // Sorting questions by created_at in ascending order
+                    }, include: {
+                        response: true
+                    }
+                },
+            }
+        })
+        if (!updatedQuestion) {
+            return NextResponse.json({ message: "Error fetching updated questions", success: false }, { status: 400 });
+        }
+        console.log('the questioons  ', updatedQuestion.questions)
+
         await prisma.interview_session.update({
             where: { id: interviewSession[0].id },
             data: {
                 max_count: interviewSession[0].max_count - 1,
             }
         })
-        return NextResponse.json({ message: "Question created successfully", success: true, question: allExistingQuestions }, { status: 200 });
+        // console.log('questions',allExistingQuestions)
+        return NextResponse.json({ message: "Question created successfully", success: true, question: updatedQuestion.questions }, { status: 200 });
 
     } catch (error) {
         console.error("Error in start interview route:", error);
@@ -264,14 +275,27 @@ export async function POST(request: NextRequest, { params }: { params: { session
 
         console.log(feedback)
 
+        const responseData = await prisma.response.create({
+            data: {
+                feedback: feedback,
+                score: score,
+                question_id: questionId,
+            }
+        })
+        if (!responseData) {
+            return NextResponse.json({ message: "Error creating response", success: false }, { status: 400 });
+        }
+
         const updateQuestion = await prisma.question.update({
             where: { id: questionId },
             data: {
                 answer: answer,
-                response: feedback,
+            },
+            include: {
+                response: true
             }
+        });
 
-        })
         if (!updateQuestion) {
             return NextResponse.json({ message: "Error updating question", success: false }, { status: 400 });
         }
