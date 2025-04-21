@@ -8,7 +8,7 @@ The application uses Next.js for the frontend, PostgreSQL for data storage, and 
 
 This project is currently a work in progress and not yet ready for production use.
 
-We're actively working on building and testing features, and things may break or change frequently.  
+I'm actively working on building and testing features, and things may break or change frequently.  
 Feel free to explore the code, give feedback, or contribute, but please note that this is **not yet stable**.
 
 Stay tuned for updates!
