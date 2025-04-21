@@ -2,7 +2,7 @@
 
 PrepIfy is an intelligent interview preparation platform that leverages AI to provide personalized interview practice sessions. The platform helps candidates prepare for both technical and behavioral interviews by generating relevant questions, providing real-time feedback, and tracking progress.
 
-The application uses Next.js for the frontend, PostgreSQL for data storage, and integrates with both OpenAI and Google's Generative AI for question generation and answer evaluation. It features a secure authentication system with Next-Auth, real-time feedback mechanisms, and a user-friendly interface for managing interview sessions.
+The application uses Next.js for the frontend, PostgreSQL for data storage, and integrates with Google's Generative AI for question generation and answer evaluation. It features a secure authentication system with Next-Auth, real-time feedback mechanisms, and a user-friendly interface for managing interview sessions.
 
 ## 🚧 Under Development
 
@@ -40,7 +40,6 @@ Stay tuned for updates!
 - Node.js 16.x or later
 - PostgreSQL 12.x or later
 - npm or yarn package manager
-- OpenAI API key (for AI features)
 - Google Cloud API key (for AI features)
 
 ### Installation
@@ -112,7 +111,7 @@ User -> Authentication -> Interview Session -> AI Question Generation -> User Re
 
 1. User authentication through NextAuth.js
 2. Session management using Prisma ORM
-3. AI integration through OpenAI/Google GenAI APIs
+3. AI integration through Google GenAI APIs
 4. Real-time feedback processing
 5. Database persistence for session history
 
@@ -125,7 +124,9 @@ The application uses a PostgreSQL database with the following key resources:
 
 - User: Stores user authentication and profile information
 - InterviewSession: Manages interview sessions and their states
-- Questions: Stores generated questions and user responses
+- Questions: Stores generated questions
+- Technoloies: Stores technology stack information
+- Responses: Stores AI feedback and score
 
 **Authentication:**
 
