@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession, User } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma} from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: NextRequest) {
 
@@ -24,10 +24,21 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
 
-        const { position, type, level } = body;
+        const { position, interviewType:type, level, techStacks } = body;
 
-        if (!position || !type || !level) {
-            return NextResponse.json({ message: "All fields are required", success: false }, { status: 400 });
+        console.log(position, type ,level,techStacks)
+
+        if (
+            !position ||
+            !type ||
+            !level ||
+            !Array.isArray(techStacks) ||
+            techStacks.length === 0
+        ) {
+            return NextResponse.json(
+                { message: "All fields are required", success: false },
+                { status: 400 }
+            );
         }
 
         const interview = await prisma.interview_session.create({
@@ -38,6 +49,18 @@ export async function POST(request: NextRequest) {
                 user_id: user.id,
             },
         });
+
+        const technologies = await Promise.all(
+            techStacks.map((tech: string) =>
+                prisma.technology.create({
+                    data: {
+                        name: tech,
+                        user_id: user.id,
+                        interview_session_id: interview.id,
+                    }
+                })
+            )
+        );
 
         return NextResponse.json({ message: "Interview session started successfully", success: true, data: interview }, { status: 201 });
     } catch (error) {
