@@ -50,8 +50,6 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
 
-        console.log('session id', id)
-
         const interviewSession = user?.interviewSessions || []
 
         if (interviewSession.length === 0) {
@@ -106,8 +104,6 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                         },
                     ],
                 });
-
-                console.log(completion.text);
             } catch (error) {
                 console.error("OpenAI Error", error);
                 return NextResponse.json({
@@ -166,7 +162,6 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                 max_count: interviewSession[0].max_count - 1,
             }
         })
-        // console.log('questions',allExistingQuestions)
         return NextResponse.json({ message: "Question created successfully", success: true, question:createQuestion }, { status: 200 });
 
     } catch (error) {
@@ -200,8 +195,6 @@ export async function POST(request: NextRequest, { params }: { params: { session
 
         const id = await params.sessionId;
 
-        console.log('session id', id)
-
         const interviewSession = await prisma.interview_session.findUnique({
             where: { id: id }
         })
@@ -213,8 +206,6 @@ export async function POST(request: NextRequest, { params }: { params: { session
         const body = await request.json();
 
         const { answer, questionId } = body;
-
-        console.log(answer, questionId)
 
         if (!answer || !questionId) {
             return NextResponse.json({ message: "answer and questionId are required", success: false }, { status: 400 });
@@ -244,7 +235,6 @@ export async function POST(request: NextRequest, { params }: { params: { session
         });
         // Extracting the AI's response from the completion
         const aiResponse = completion.text;
-        console.log(aiResponse)
 
         if (!aiResponse) {
             return NextResponse.json({ message: "Error generating AI response", success: false }, { status: 400 });
@@ -252,7 +242,6 @@ export async function POST(request: NextRequest, { params }: { params: { session
 
         // Clean up the response before parsing
         const cleanedResponse = aiResponse.trim().replace(/^```json/, '').replace(/```$/, '').trim();
-        console.log(cleanedResponse)
 
         // Now parse the cleaned JSON
         const parsedResponse = JSON.parse(cleanedResponse);
@@ -262,8 +251,6 @@ export async function POST(request: NextRequest, { params }: { params: { session
         if (feedback === undefined || score === undefined) {
             return NextResponse.json({ message: "Error parsing AI response", success: false }, { status: 400 });
         }
-
-        console.log(feedback)
 
         const responseData = await prisma.response.create({
             data: {

@@ -47,7 +47,6 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
         if (!interviewSession) {
             return NextResponse.json({ message: "Interview session not found", success: false }, { status: 404 });
         }
-        console.log(interviewSession.questions)
 
         return NextResponse.json({ data: interviewSession.questions, success: true, message: "success" }, { status: 200 });
     } catch (error) {

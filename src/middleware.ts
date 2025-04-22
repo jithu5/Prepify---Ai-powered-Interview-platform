@@ -8,11 +8,7 @@ export async function middleware(request: NextRequest) {
 
     const token = await getToken({ req: request })
 
-    console.log('token', token)
-
     const url = request.nextUrl;
-
-    console.log('url', url)
 
     if (url.pathname === '/') {
         return NextResponse.redirect(new URL('/home', request.url))

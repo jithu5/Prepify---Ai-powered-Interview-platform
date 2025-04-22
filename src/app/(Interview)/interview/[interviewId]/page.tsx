@@ -10,25 +10,42 @@ import { Button } from '@/components/ui/button';
 import '@fontsource/titillium-web';
 import { useRouter } from 'next/navigation';
 
+interface Session{
+    question?: string;
+    answer?: string;
+    response?: {
+        feedback: string;
+        score?: number;
+    };
+    id?: string;
+
+}
+
 function InterviewSectionPage() {
     const { interviewId } = useParams();
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
-    const [sessions, setSessions] = useState<any[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
     const [answer, setAnswer] = useState<string>('');
     const [questionId, setQuestionId] = useState<string>('');
+    const [isQuestionLoading, setIsQuestionLoading] = useState<boolean>(false)
+    const [isFeedbackLoading, setIsFeedbackLoading] = useState<boolean>(false)
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const router = useRouter()
 
-    const fetchInterviewData = useCallback(async () => {
+    const fetchInterviewQuestions = useCallback(async () => {
         try {
+            setIsQuestionLoading(true)
             const { data } = await axios.get(`/api/interview-questions/${interviewId}`);
-            setSessions((prevSessions => [...prevSessions, ...data.question]));
-            const last = data.question?.[sessions.length];
-            console.log(last)
-            if (last?.id) setQuestionId(last.id);
+            setSessions((prevSessions => [...prevSessions, data.question]));
+            console.log(data.question)
+            setQuestionId(data.question?.id);
             toast.success(data.message);
         } catch (error: any) {
             toast.error(error?.response?.data?.message || "Error fetching interview data");
+        }
+        finally {
+            setIsQuestionLoading(false)
         }
     }, [interviewId]);
 
@@ -55,14 +72,25 @@ function InterviewSectionPage() {
         }
         fetchQuestions()
     }, [interviewId])
-console.log(questionId)
+    console.log(questionId)
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [sessions]);
 
-    const handleAnswerSubmit = async (answer:string,questionId:string) => {
+    const handleAnswerSubmit = async (answer: string, questionId: string) => {
         try {
+            if (!answer) return toast.error("Please enter an answer");
+            if (!questionId) return toast.error("No question found");
+            setIsSubmitting(true)
+            setSessions((prev) =>
+                prev.map((session) =>
+                    session.id === questionId
+                        ? { ...session, answer }
+                        : session
+                )
+            );
+            setIsFeedbackLoading(true)
             const { data } = await axios.post(`/api/interview-questions/${interviewId}`, {
                 answer, questionId
             }, {
@@ -74,7 +102,7 @@ console.log(questionId)
                 setSessions((prev) =>
                     prev.map((session) =>
                         session.id === questionId
-                            ? { ...session, answer, response: data.data }
+                            ? { ...session, response: data.data }
                             : session
                     )
                 );
@@ -86,22 +114,24 @@ console.log(questionId)
             toast.error(err?.response?.data?.message || "Error submitting answer");
         } finally {
             setAnswer('');
+            setIsFeedbackLoading(false)
+            setIsSubmitting(false)
         }
     };
 
-    const stopInterviewSession = async()=>{
+    const stopInterviewSession = async () => {
         try {
-            const {data} = await axios.post(`/api/stop-interview-session/${interviewId}`,{
+            const { data } = await axios.post(`/api/stop-interview-session/${interviewId}`, {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })
-            if(data.success){
+            if (data.success) {
                 toast.success(data.message)
                 router.push('/home')
-            }else{
+            } else {
                 toast.error(data.message)
             }
-        } catch (error:any) {
+        } catch (error: any) {
             const errMessage = error?.response?.data?.message || "Error stopping interview session";
             toast.error(errMessage)
         }
@@ -116,7 +146,7 @@ console.log(questionId)
                             description: "This will end the interview session",
                             action: {
                                 label: "Yes",
-                                onClick: () =>stopInterviewSession(),
+                                onClick: () => stopInterviewSession(),
                             },
                         })
                     } variant="link" className="text-blue-600 font-medium">
@@ -136,16 +166,16 @@ console.log(questionId)
                 <h1 className="text-3xl font-bold text-center mb-6">Interview Session</h1>
 
                 <div className="h-[70vh] overflow-y-auto px-4 md:px-12 lg:px-48 space-y-8 pb-36">
-                    {sessions.map((session, index) => (
-                        <ChatSession key={index} session={session} />
+                    {sessions.map((session) => (
+                        <ChatSession key={session.id} session={session} isQuestionLoading={isQuestionLoading} isFeedbackLoading={isFeedbackLoading} />
                     ))}
-                    <div ref={bottomRef} onClick={fetchInterviewData} className="w-full flex justify-center">
+                    <div ref={bottomRef} onClick={fetchInterviewQuestions} className="w-full flex justify-center">
                         <Button>Next Question</Button>
                     </div>
 
                 </div>
 
-                <ChatInput answer={answer} onChange={(e) => setAnswer(e.target.value)} onSubmit={()=>handleAnswerSubmit(answer,questionId)} />
+                <ChatInput isSubmitting={isSubmitting} answer={answer} onChange={(e) => setAnswer(e.target.value)} onSubmit={() => handleAnswerSubmit(answer, questionId)} />
             </div>
         </>
     );

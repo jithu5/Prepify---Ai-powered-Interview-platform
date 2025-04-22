@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
@@ -21,7 +21,7 @@ export default function StartInterview() {
         register,
         handleSubmit,
         setValue,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<InterviewFormData>();
 
     const [techStacks, setTechStacks] = useState<string[]>([]);
@@ -160,7 +160,7 @@ export default function StartInterview() {
                             type="submit"
                             className="w-full text-white py-3 rounded-lg font-semibold transition"
                         >
-                            Start Interview
+                            {isSubmitting ? (<> Starting...<Loader2 size={4}/></>) : "Start Interview"}
                         </Button>
                     </form>
                 </div>

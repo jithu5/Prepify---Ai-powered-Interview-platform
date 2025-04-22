@@ -8,9 +8,10 @@ type Props = {
     answer: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: () => void;
+    isSubmitting?: boolean;
 };
 
-export default function ChatInput({ answer, onChange, onSubmit }: Props) {
+export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: Props) {
     return (
         <div className="fixed bottom-0 w-full left-0 bg-white border-t border-gray-200 px-4 md:px-12 lg:px-48 py-4 flex items-center gap-4">
             <Input
@@ -19,7 +20,7 @@ export default function ChatInput({ answer, onChange, onSubmit }: Props) {
                 className="flex-1"
                 placeholder="Type your answer..."
             />
-            <Button onClick={onSubmit}>Send</Button>
+            <Button onClick={onSubmit}>{isSubmitting?"Sending...":"Send"}</Button>
         </div>
     );
 }

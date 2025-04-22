@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
         if (!session) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
-
-        const userToken: User = session.user;
+        
+        const userId = session.user.id;
 
         const user = await prisma.user.findUnique({
-            where: { id: userToken.id },
+            where: { id: userId },
         });
 
         if (!user) {
@@ -25,8 +25,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         const { position, interviewType:type, level, techStacks } = body;
-
-        console.log(position, type ,level,techStacks)
 
         if (
             !position ||

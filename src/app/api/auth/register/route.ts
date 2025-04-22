@@ -21,8 +21,6 @@ export async function POST(req: NextRequest) {
 
         const { username, firstname, lastname, phonenumber, email, password } = parsedData;
 
-        await prisma.$connect()
-
         const existingUser = await prisma.user.findFirst({
             where: {
                 OR: [
