@@ -73,9 +73,9 @@ function InterviewHistoryPage() {
                 <p className="text-gray-600 text-sm">Level: <span className="capitalize">{interview.level}</span></p>
                 <p className="text-gray-600 text-sm">Type: {interview.type}</p>
               </div>
-              <div className="mt-4 sm:mt-0 text-sm text-gray-500">
+              <div className="mt-4 sm:mt-0 text-sm text-gray-500 flex items-center justify-center flex-col">
                 {/* <p><strong>Score:</strong> <span className="text-green-600 font-medium">{interview.score}</span></p> */}
-                <ScoreChart score={interview.score} />
+                <ScoreChart score={Number(interview.score.toFixed(1))} />
                 <h1 className='text-center text-xl font-semibold'>{interview.score.toFixed(1)}%</h1>
               </div>
             </div>

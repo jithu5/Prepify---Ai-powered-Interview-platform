@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { PieChart, Pie, Cell } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 
 const RADIAN = Math.PI / 180
 
@@ -24,7 +24,7 @@ const ScoreChart: React.FC<ScoreChartProps> = ({ score }) => {
 
     const data: PieData[] = [
         { name: 'Score', value: filledValue, color: '#4ade80' },      // green
-        { name: 'Remaining', value: remainingValue, color: '#e5e7eb' } // light gray
+        { name: 'Remaining', value: Number(remainingValue.toFixed(1)), color: '#e5e7eb' } // light gray
     ]
 
     const cx = 80
@@ -82,6 +82,7 @@ const ScoreChart: React.FC<ScoreChartProps> = ({ score }) => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
             </Pie>
+            <Tooltip/>
             {renderNeedle(value, data, cx, cy, iR, oR, '#facc15')}
         </PieChart>
     )

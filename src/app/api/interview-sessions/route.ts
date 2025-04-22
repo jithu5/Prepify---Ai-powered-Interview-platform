@@ -47,7 +47,6 @@ export async function GET(req: NextRequest) {
         const interviewData = user.interviewSessions.map((interview) => {
             const totalScore = interview.Response.reduce((accumulator, curr) => accumulator + (curr.score || 0), 0);
             
-            console.log(interview.Response.length)
             const averageScore = (totalScore /( interview.Response.length * 10)) * 100
 
             return {
