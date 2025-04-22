@@ -9,8 +9,9 @@ import ChatInput from '@/components/ChatInput';
 import { Button } from '@/components/ui/button';
 import '@fontsource/titillium-web';
 import { useRouter } from 'next/navigation';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
-interface Session{
+interface Session {
     question?: string;
     answer?: string;
     response?: {
@@ -141,17 +142,27 @@ function InterviewSectionPage() {
         <>
             <nav className="w-full fixed top-0 left-0 px-6 py-4 bg-white shadow z-50">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <Button onClick={() =>
-                        toast("Are you sure?", {
-                            description: "This will end the interview session",
-                            action: {
-                                label: "Yes",
-                                onClick: () => stopInterviewSession(),
-                            },
-                        })
-                    } variant="link" className="text-blue-600 font-medium">
-                        ← Back
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="link" className="text-blue-600 font-lg">← Back</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently Stop your
+                                    session and cant take this later.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={stopInterviewSession}>
+                                    OK
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
                     <h1
                         className="text-2xl font-bold tracking-wide text-gray-800"
                         style={{ fontFamily: "Titillium Web" }}

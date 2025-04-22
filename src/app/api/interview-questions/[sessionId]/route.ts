@@ -257,6 +257,7 @@ export async function POST(request: NextRequest, { params }: { params: { session
                 feedback: feedback,
                 score: score,
                 question_id: questionId,
+                interview_session_id:id
             }
         })
         if (!responseData) {

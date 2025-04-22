@@ -5,7 +5,6 @@ import { getToken } from 'next-auth/jwt'
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-
     const token = await getToken({ req: request })
 
     const url = request.nextUrl;
@@ -25,13 +24,12 @@ export async function middleware(request: NextRequest) {
         // Redirect to the login page
         return NextResponse.redirect(new URL('/login', request.url))
     }
-
 }
 
-// See "Matching Paths" below to learn more
+// Make this an Edge Function
 export const config = {
     matcher: [
         '/((?!api|_next/static|_next/image|favicon.ico).*)'
     ],
-
+    // runtime: 'edge' // This tells Next.js to treat this as an Edge Function
 }

@@ -1,5 +1,16 @@
 @import "tailwindcss";
 /* @import "tw-animate-css"; */
+/* global.css or tailwind base layer */
+body {
+  overflow-y: scroll;
+}
+
+/* body-scroll-lock.css */
+body.lock-scroll {
+  overflow: hidden;
+  padding-right: 16px;
+  /* Adjust based on your scrollbar width */
+}
 
 @custom-variant dark (&:is(.dark *));
 
