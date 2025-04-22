@@ -50,7 +50,7 @@ function NavBar() {
                                     <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50">
                                         <ul className="py-2 text-sm text-gray-700">
                                             <li>
-                                                <button className="w-full px-4 py-2 text-left hover:bg-gray-100">Account</button>
+                                                <Link href={'/interview-history'} className="w-full px-4 py-2 text-left hover:bg-gray-100">Your Interviews</Link>
                                             </li>
                                             <li>
                                                 <button className="w-full px-4 py-2 text-left hover:bg-gray-100">Settings</button>

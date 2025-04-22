@@ -38,20 +38,30 @@ export async function GET(req: NextRequest) {
 
         }
 
-        user.interviewSessions.map((interview) => {
-            const totalScore = interview.Response.reduce((accumulator, curr) => accumulator + curr.score!,
-                0)
-
-            console.log(totalScore)
-        })
         const interviewSessions = user.interviewSessions || [];
 
         if (interviewSessions.length === 0) {
             return NextResponse.json({ message: "No interview sessions found", success: false }, { status: 404 });
 
         }
+        const interviewData = user.interviewSessions.map((interview) => {
+            const totalScore = interview.Response.reduce((accumulator, curr) => accumulator + (curr.score || 0), 0);
+            
+            console.log(interview.Response.length)
+            const averageScore = (totalScore /( interview.Response.length * 10)) * 100
 
-        return NextResponse.json({ message: "Interview sessions fetched successfully", data: interviewSessions, success: true }, { status: 200 });
+            return {
+                ...interview,
+                score: averageScore,
+            };
+        });
+
+        if (interviewData.length === 0) {
+            return NextResponse.json({ message: "No interview sessions found", success: false }, { status: 404 });
+
+        }
+
+        return NextResponse.json({ message: "Interview sessions fetched successfully", data: interviewData, success: true }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching interview sessions:", error);
