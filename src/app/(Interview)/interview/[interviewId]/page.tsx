@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { toast } from "sonner";
@@ -33,6 +33,81 @@ function InterviewSectionPage() {
     const [isFeedbackLoading, setIsFeedbackLoading] = useState<boolean>(false)
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const router = useRouter()
+
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
+    // Start recording
+    const startRecording = () => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices
+                .getUserMedia({ audio: true })
+                .then((stream) => {
+                    const mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorderRef.current = mediaRecorder;
+                    audioChunksRef.current = [];  // Clear old audio chunks
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunksRef.current.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunksRef.current, {
+                            type: "audio/mp3",
+                        });
+                        setAudioBlob(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    setIsRecording(true);
+                })
+                .catch((error) => {
+                    console.error("Error accessing audio device:", error);
+                });
+        } else {
+            console.error("Your browser does not support audio recording.");
+        }
+    };
+
+    // Stop recording
+    const stopRecording = () => {
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        } else {
+            console.error("Recording has not started.");
+        }
+    };
+
+    // Upload audio file to the backend
+    const uploadAudio = async (e:FormEvent) => {
+        e.preventDefault()
+        if (audioBlob) {
+            const audioUrl = URL.createObjectURL(audioBlob); // your Blob object
+            const audio = new Audio(audioUrl);
+
+            try {
+                const file = new File([audioBlob], "audio.mp3", { type: audioBlob.type })
+                const formData = new FormData();
+                formData.append("audio", file); // `file` is the File object from input
+                for (const [key, value] of formData.entries()) {
+                    console.log(`${key}:`, value);
+                }
+                const { data } = await axios.post("/api/speech-to-text", formData, {
+                    withCredentials: true
+                })
+                console.log(data)
+            } catch (error) {
+                console.error(error)
+            }
+
+        } else {
+            console.error("No audio data to upload.");
+        }
+    };
+
 
     const fetchInterviewQuestions = useCallback(async () => {
         try {
@@ -185,8 +260,18 @@ function InterviewSectionPage() {
                     </div>
 
                 </div>
-
-                <ChatInput isSubmitting={isSubmitting} answer={answer} onChange={(e) => setAnswer(e.target.value)} onSubmit={() => handleAnswerSubmit(answer, questionId)} />
+                <form onSubmit={uploadAudio} encType='multipart/form-data' className='flex justify-center gap-5 items-center'>
+                    <h1>Audio Recorder</h1>
+                    <Button type='button' onClick={startRecording} disabled={isRecording}>
+                        Start Recording
+                    </Button>
+                    <Button type='button' onClick={stopRecording} disabled={!isRecording}>
+                        Stop Recording
+                    </Button>
+                    <Button type='submit' disabled={!audioBlob}>
+                        Upload Audio
+                    </Button>
+                </form>
             </div>
         </>
     );
