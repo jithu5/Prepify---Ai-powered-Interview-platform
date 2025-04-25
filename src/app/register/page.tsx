@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 import axios from "axios";
+import OtpVerification from "@/components/OtpVerificatin";
 
 type RegisterForm = {
     username: string;
@@ -19,11 +20,14 @@ type RegisterForm = {
 };
 
 export default function RegisterPage() {
-    const { register, handleSubmit, watch, formState: { isSubmitting } } = useForm<RegisterForm>();
+    const { register, handleSubmit, watch, formState: { isSubmitting, isSubmitSuccessful } } = useForm<RegisterForm>();
     const [username, setUsername] = useState<string>("");
     const [usernameAvailable, setUsernameAvailable] = useState<null | boolean>(null);
     const [error, setError] = useState<string>("");
     const [success, setSuccess] = useState<string>("");
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [userEmail, setUserEmail] = useState("");
+
     const router = useRouter();
 
     const debounced = useDebounceCallback(setUsername, 500);
@@ -57,7 +61,9 @@ export default function RegisterPage() {
             if (data.success) {
                 setSuccess(data.message);
                 toast.success(data.message);
-                router.push("/login");
+                console.log(isSubmitSuccessful)
+                setShowOtpModal(true)
+                setUserEmail(data.data.email)
             } else {
                 setError(data.message);
                 toast.error(data.message);
@@ -143,6 +149,11 @@ export default function RegisterPage() {
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 {success && <p className="text-green-500 text-sm">{success}</p>}
+
+                {
+                    isSubmitSuccessful && <OtpVerification open={showOtpModal} onClose={() => setShowOtpModal(false)} email={userEmail} />
+
+                }
 
                 <Button
                     type="submit"

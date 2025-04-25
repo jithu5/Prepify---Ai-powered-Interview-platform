@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { MailtrapClient } from "mailtrap"
+// import nodemailer from "nodemailer"
 
 // Define Zod schema to validate the input data
 const registerSchema = z.object({
@@ -12,6 +14,12 @@ const registerSchema = z.object({
     email: z.string().email("Invalid email format"),
     password: z.string().min(8, "Password should be at least 8 characters"), // Update based on your password strength policy
 });
+
+const TOKEN = process.env.MAIL_TOKEN!;
+const SENDER_EMAIL = process.env.SENDER_MAIL!;
+const client = new MailtrapClient({ token: TOKEN });
+
+const sender = { name: "Prepify", email: SENDER_EMAIL };
 
 export async function POST(req: NextRequest) {
     try {
@@ -45,6 +53,11 @@ export async function POST(req: NextRequest) {
 
         const hashPassword = await bcrypt.hash(password, 10)
         // Create a new user (add actual user creation logic here)
+
+        const RECIPIENT_EMAIL = email;
+        const otp = Math.floor(100000 + Math.random() * 900000) // a 6 digit otp
+        console.log(otp)
+
         const newUser = await prisma.user.create({
             data: {
                 username,
@@ -52,9 +65,21 @@ export async function POST(req: NextRequest) {
                 lastname,
                 phonenumber,
                 email,
-                password: hashPassword // Consider hashing the password before storing!
+                password: hashPassword, // Consider hashing the password before storing!
+                verify_otp: otp,
+                verify_otp_expiry: new Date(Date.now() + 2 * 60 * 1000) // 2 minutes in ms
             }
         });
+
+        client
+            .send({
+                from: sender,
+                to: [{ email: RECIPIENT_EMAIL }],
+                subject: "Account verification",
+                text: "Welcome to Mailtrap Sending!",
+            })
+            .then(console.log)
+            .catch(console.error);
 
         return NextResponse.json({
             success: true,

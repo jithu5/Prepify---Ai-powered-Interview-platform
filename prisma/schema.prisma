@@ -12,19 +12,24 @@ datasource db {
 }
 
 model User {
-  id                String              @id @default(cuid())
-  username          String              @unique
-  firstname         String
-  lastname          String
-  phonenumber       String
-  email             String              @unique
-  password          String
-  dob               DateTime?
-  created_at        DateTime            @default(now())
-  updated_at        DateTime            @updatedAt
-  interviewSessions Interview_session[] // Relation to Interview_session model
-  questions         Question[] // Relation to Question model
-  technologies      Technology[] // Relation to Technology model
+  id                         String              @id @default(cuid())
+  username                   String              @unique
+  firstname                  String
+  lastname                   String
+  phonenumber                String
+  email                      String              @unique
+  password                   String
+  dob                        DateTime?
+  is_account_verified        Boolean             @default(false)
+  verify_otp                 Int?
+  verify_otp_expiry          DateTime?
+  forgot_password_otp        Int?
+  forgot_password_otp_expiry DateTime?
+  created_at                 DateTime            @default(now())
+  updated_at                 DateTime            @updatedAt
+  interviewSessions          Interview_session[] // Relation to Interview_session model
+  questions                  Question[] // Relation to Question model
+  technologies               Technology[] // Relation to Technology model
 }
 
 model Interview_session {
