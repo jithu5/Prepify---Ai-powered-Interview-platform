@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
         const { otp, email } = body
 
         if (!otp || !email) {
-            return NextResponse.json({ message: "Otp and email are required", success: false }, { status: 401 });
+            return NextResponse.json({ message: "Otp is required", success: false }, { status: 401 });
         }
 
         const user = await prisma.user.findUnique({

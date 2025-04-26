@@ -16,6 +16,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import TimeLeft from "./TimeLeft";
 
 interface Props {
     open: boolean;
@@ -44,10 +45,9 @@ export default function OtpVerification({ open, onClose, email }: Props) {
             }
             toast.error(data.message)
         } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Error i verifying email"
+            const errMsg = error?.response?.data?.message || "Error in verifying email"
             toast.error(errMsg)
-        }
-        finally{
+        } finally {
             setOtp("")
         }
     }
@@ -56,16 +56,16 @@ export default function OtpVerification({ open, onClose, email }: Props) {
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="px-10 py-12 sm:max-w-md rounded-2xl shadow-lg">
                 <DialogHeader className="text-center space-y-2">
-                    <DialogTitle className="text-2xl font-bold text-gray-800">
+                    <DialogTitle className="text-2xl font-bold text-gray-800 text-center">
                         Verify your email
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-600">
-                        We've sent a 6-digit verification code to <span className="font-medium text-gray-800">{email}</span>.
+                    <DialogDescription className="text-sm text-gray-600 w-[100%] text-center">
+                        We've sent a 6-digit verification code to <span className="font-medium text-gray-800">{email}</span>.<br />
                         Please enter it below.
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8 flex justify-center flex-col items-center gap-1">
                     <div className="mt-6">
 
                         <InputOTP value={otp} onChange={(value) => setOtp(value)} maxLength={6} className="flex justify-center gap-2">
@@ -90,6 +90,7 @@ export default function OtpVerification({ open, onClose, email }: Props) {
                             </InputOTPGroup>
                         </InputOTP>
                     </div>
+                    <TimeLeft open={open} onClose={onClose}/>
 
                     <div className="mt-8 flex justify-center">
                         <Button variant="default" className="text-base px-8 py-3 rounded-lg">

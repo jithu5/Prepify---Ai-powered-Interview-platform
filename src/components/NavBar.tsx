@@ -8,12 +8,17 @@ import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import '@fontsource/titillium-web';
+import OtpVerification from "./OtpVerificatin"
+import axios from "axios"
+import { toast } from "sonner"
 
 function NavBar() {
     const { data: session } = useSession()
     const router = useRouter()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
+    const [modalOpen, setModalOpen] = useState<boolean>(false)
+    const [sendingOtp,setSendingOtp] = useState<boolean>(false)
     console.log(session)
 
     useEffect(() => {
@@ -27,6 +32,29 @@ function NavBar() {
             document.removeEventListener("mousedown", handleClickOutside)
         }
     }, [])
+
+    const handleModalOpen = async () => {
+        setSendingOtp(true)
+        try {
+            const { data } = await axios.get("/api/auth/send-otp", {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            })
+            
+            if (data.success) {
+                toast.success(data.message)
+                setModalOpen(true)
+                return
+            }
+            toast.error(data.message)
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message;
+            toast.error(errMsg)
+        }
+        finally{
+            setSendingOtp(false)
+        }
+    }
 
     return (
         <nav className="w-full bg-white px-10 py-6 flex items-center justify-between fixed left-0 top-0 z-50 shadow-md">
@@ -58,20 +86,12 @@ function NavBar() {
                                             </li>
                                             {session?.user && !session.user.isAccountVerified && (
                                                 <li>
-                                                    <button className="w-full px-4 py-2 text-left hover:bg-gray-100">
+                                                    <button disabled={sendingOtp} onClick={handleModalOpen}
+                                                        className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${sendingOtp ? 'text-stone-200':''}`}>
                                                         Verify Account
                                                     </button>
                                                 </li>
                                             )}
-
-                                            <li>
-                                                <button
-                                                    className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                                                    onClick={() => signOut()}
-                                                >
-                                                    Logout
-                                                </button>
-                                            </li>
                                         </ul>
                                     </div>
                                 )}
@@ -88,6 +108,7 @@ function NavBar() {
                     )
                 }
             </div>
+            {modalOpen && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email!} />}
         </nav>
     )
 }
