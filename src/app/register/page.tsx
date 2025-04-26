@@ -150,11 +150,6 @@ export default function RegisterPage() {
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 {success && <p className="text-green-500 text-sm">{success}</p>}
 
-                {
-                    isSubmitSuccessful && <OtpVerification open={showOtpModal} onClose={() => setShowOtpModal(false)} email={userEmail} />
-
-                }
-
                 <Button
                     type="submit"
                     disabled={isSubmitting || usernameAvailable === false}
@@ -169,6 +164,11 @@ export default function RegisterPage() {
                     </Link>
                 </p>
             </form>
+
+            {
+                isSubmitSuccessful && <OtpVerification open={showOtpModal} onClose={() => setShowOtpModal(false)} email={userEmail} />
+
+            }
         </div>
     );
 }

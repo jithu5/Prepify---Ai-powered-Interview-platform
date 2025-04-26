@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { MailtrapClient } from "mailtrap"
+import { EMAIL_VERIFY_TEMPLATE } from "@/lib/emailVerifyTemplate";
 // import nodemailer from "nodemailer"
 
 // Define Zod schema to validate the input data
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
                 from: sender,
                 to: [{ email: RECIPIENT_EMAIL }],
                 subject: "Account verification",
-                text: "Welcome to Mailtrap Sending!",
+                html:EMAIL_VERIFY_TEMPLATE.replace("{{otp}}",otp.toString())
             })
             .then(console.log)
             .catch(console.error);
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error: any) {
-        console.log(error.message[0].message)
+        console.log(error)
 
         return NextResponse.json({
             success: false,

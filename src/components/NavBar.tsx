@@ -14,6 +14,7 @@ function NavBar() {
     const router = useRouter()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
+    console.log(session)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -55,6 +56,14 @@ function NavBar() {
                                             <li>
                                                 <button className="w-full px-4 py-2 text-left hover:bg-gray-100">Settings</button>
                                             </li>
+                                            {session?.user && !session.user.isAccountVerified && (
+                                                <li>
+                                                    <button className="w-full px-4 py-2 text-left hover:bg-gray-100">
+                                                        Verify Account
+                                                    </button>
+                                                </li>
+                                            )}
+
                                             <li>
                                                 <button
                                                     className="w-full px-4 py-2 text-left hover:bg-gray-100"

@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
         const user = await prisma.user.findUnique({
             where: { id: userId },
             select: {
+                is_account_verified: true,
                 interviewSessions: {
                     include: {
                         Response: {
@@ -38,6 +39,10 @@ export async function GET(req: NextRequest) {
 
         }
 
+        if (!user.is_account_verified) {
+            return NextResponse.json({ message: "Account not verified", success: false }, { status: 401 });
+        }
+
         const interviewSessions = user.interviewSessions || [];
 
         if (interviewSessions.length === 0) {
@@ -46,8 +51,8 @@ export async function GET(req: NextRequest) {
         }
         const interviewData = user.interviewSessions.map((interview) => {
             const totalScore = interview.Response.reduce((accumulator, curr) => accumulator + (curr.score || 0), 0);
-            
-            const averageScore = (totalScore /( interview.Response.length * 10)) * 100
+
+            const averageScore = (totalScore / (interview.Response.length * 10)) * 100
 
             return {
                 ...interview,

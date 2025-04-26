@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
         if (!user) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
+        if (!user.is_account_verified) {
+            return NextResponse.json({ message: "Account not verified", success: false }, { status: 401 });
+        }
 
         const body = await request.json();
 

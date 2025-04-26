@@ -23,6 +23,9 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
         if (!user) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
+        if (!user.is_account_verified) {
+            return NextResponse.json({ message: "Account not verified", success: false }, { status: 401 });
+        }
 
         const id = await params.sessionId;
 

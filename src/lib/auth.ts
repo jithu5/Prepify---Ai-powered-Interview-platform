@@ -31,7 +31,8 @@ export const authOptions: NextAuthOptions = {
                         password:true,
                         id:true,
                         email:true,
-                        firstname:true
+                        firstname:true,
+                        is_account_verified:true
                        }
                     })
 
@@ -48,7 +49,8 @@ export const authOptions: NextAuthOptions = {
                     return{
                         id:user.id,
                         email:user.email,
-                        name:user.firstname
+                        name:user.firstname,
+                        isAccountVerified:user.is_account_verified
                     }
                     
                 } catch (error:any) {
@@ -66,7 +68,8 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
-                token.name = user.name  // Optionally add other fields to the token
+                token.name = user.name ; // Optionally add other fields to the token
+                token.isAccountVerified = user.isAccountVerified
             }
             return token;
         },
@@ -75,6 +78,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string;  // Attach the token data to the session
                 session.user.email = token.email as string;  // Optional: If you want to attach the email as well
                 session.user.name = token.name as string;  // Optional: If you want to attach the name as well
+                session.user.isAccountVerified = token.isAccountVerified as boolean
             }
             return session;
         },
