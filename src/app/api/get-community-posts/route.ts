@@ -1,0 +1,69 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+
+export async function GET(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+
+        const userId = session?.user.id;
+        if (!userId) {
+            return NextResponse.json({
+                message: "Unauthorized", success: false
+            }, { status: 401 });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { is_account_verified: true }
+        });
+
+        if (!user) {
+            return NextResponse.json({
+                message: "Unauthorized", success: false
+            }, { status: 401 });
+        }
+
+        if (!user.is_account_verified) {
+            return NextResponse.json({
+                message: "Your account needs to be verified", success: false
+            }, { status: 401 });
+        }
+
+        const { searchParams } = new URL(req.url);
+        console.log(req.url)
+        console.log(searchParams)
+        const pageParam = searchParams.get('page');
+        const limitParam = searchParams.get('limit');
+
+        if (!pageParam || !limitParam) {
+            return NextResponse.json({
+                message: "Page and Limit are required", success: false
+            }, { status: 400 });
+        }
+
+        const page = Math.max(1, parseInt(pageParam, 10));
+        const limit = Math.min(Math.max(1, parseInt(limitParam, 10)), 100); // limit max 100
+
+        const skip = (page - 1) * limit;
+
+        const posts = await prisma.post.findMany({
+            skip,
+            take: limit,
+            orderBy: {
+                created_at: "desc" // Optional: Sort by latest
+            }
+        });
+
+        if (posts.length === 0) {
+            return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: "Posts fetched successfully", success: true, data: posts }, { status: 200 });
+
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        return NextResponse.json({ message: "Server error in fetching posts", success: false }, { status: 500 });
+    }
+}

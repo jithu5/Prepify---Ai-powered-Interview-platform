@@ -40,6 +40,7 @@ export default function OtpVerification({ open, onClose, email }: Props) {
 
             if (data.success) {
                 toast.success(data.message)
+                // onclose
                 router.push('/login')
                 return
             }
