@@ -1,6 +1,7 @@
 # PrepIfy - AI-Powered Interview Preparation Platform
 
-PrepIfy is an intelligent interview preparation platform that leverages AI to provide personalized interview practice sessions. The platform helps candidates prepare for both technical and behavioral interviews by generating relevant questions, providing real-time feedback, and tracking progress.
+PrepIfy is an intelligent interview preparation platform that leverages AI to provide personalized interview practice sessions. The platform helps candidates prepare for both technical and behavioral interviews by generating relevant questions, providing real-time feedback, and tracking progress. Also provides a community section where users can share their interview experience with others.
+And will be Dockerized in the near future.
 
 The application uses Next.js for the frontend, PostgreSQL for data storage, and integrates with Google's Generative AI for question generation and answer evaluation. It features a secure authentication system with Next-Auth, real-time feedback mechanisms, and a user-friendly interface for managing interview sessions.
 
