@@ -65,7 +65,7 @@ function NavBar() {
                 }}>PREPIFY</h1>
             </Link>
             <div className="flex items-center gap-16">
-                <Link href={'/community?page=1&limit=25'} className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>community</Link>
+                <Link href='/community' className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>community</Link>
                 {
                     session?.user ? (
                         <>

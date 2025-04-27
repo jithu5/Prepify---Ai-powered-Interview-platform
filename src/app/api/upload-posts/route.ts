@@ -48,13 +48,13 @@ export async function POST(req: NextRequest) {
         await Promise.all(
             tags.map(async (tag) => {
                 const existingTag = await prisma.tag.findUnique({
-                    where: { tag_name: tag },
+                    where: { tag_name: tag.toLowerCase() },
                     select: { id: true },
                 });
 
                 const tagId = existingTag
                     ? existingTag.id
-                    : (await prisma.tag.create({ data: { tag_name: tag } })).id;
+                    : (await prisma.tag.create({ data: { tag_name: tag.toLowerCase() } })).id;
 
                 await prisma.postTag.create({
                     data: {

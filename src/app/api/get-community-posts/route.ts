@@ -46,6 +46,13 @@ export async function GET(req: NextRequest) {
         const page = Math.max(1, parseInt(pageParam, 10));
         const limit = Math.min(Math.max(1, parseInt(limitParam, 10)), 100); // limit max 100
 
+        const totalPosts = await prisma.post.findMany()
+        if (!totalPosts) {
+            return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
+
+        }
+
+
         const skip = (page - 1) * limit;
 
         const posts = await prisma.post.findMany({
@@ -60,7 +67,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
         }
 
-        return NextResponse.json({ message: "Posts fetched successfully", success: true, data: posts }, { status: 200 });
+        return NextResponse.json({ message: "Posts fetched successfully", success: true, data: posts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching posts:", error);

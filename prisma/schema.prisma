@@ -87,7 +87,7 @@ model Response {
 model Post {
   id         String    @id @default(cuid())
   user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id    String    @unique
+  user_id    String    
   question   String
   answer     String    @db.VarChar(500)
   created_at DateTime  @default(now())

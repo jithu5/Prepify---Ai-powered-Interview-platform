@@ -12,9 +12,10 @@ import { toast } from 'sonner';
 interface Props {
     open: boolean;
     onClose: () => void;
+    refetchPosts: () => void; // 👈 Accept it
 }
 
-function CommunityPostForm({ open, onClose }: Props) {
+function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
     const { handleSubmit, register, reset, setValue, formState: { isSubmitting, errors } } = useForm();
     const [tagValue, setTagValue] = useState<string>('');
     const [tagLists, setTagLists] = useState<string[]>([]);
@@ -47,6 +48,10 @@ function CommunityPostForm({ open, onClose }: Props) {
             })
             if (data.success) {
                 toast.success(data.message)
+                refetchPosts(); // 👈 Refresh posts
+                onClose(); // 👈 Also close the modal
+                reset();   // 👈 Optional: Reset form
+                setTagLists([]); // 👈 Optional: Reset tags
                 return
             }
             toast.error(data.message)

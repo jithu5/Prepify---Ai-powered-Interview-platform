@@ -1,54 +1,69 @@
-"use client"
-import React, { useEffect, useState } from 'react'
+"use client";
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ThumbsUp } from 'lucide-react';
+import { Loader2, ThumbsUp } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import CommunityPostForm from './CommunityPostForm';
 import axios from 'axios';
 import { toast } from 'sonner';
+import {
+    Pagination, PaginationContent, PaginationItem,
+    PaginationLink, PaginationNext, PaginationPrevious
+} from './ui/pagination';
 
 interface Post {
-    answer: string
-    created_at: Date
-    id: string
-    question: string
-    updated_at: Date
-    user_id: string
+    id: string;
+    question: string;
+    answer: string;
+    user_id: string;
+    created_at?: Date;
+    updated_at?: Date;
 }
 
 function CommunityPosts() {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
-    const [posts, setPosts] = useState<Post[]>([])
-    const [openForm, setOpenForm] = useState<boolean>(false)
-    const [page, setPage] = useState<number>(1)
-    const [limit, setLimit] = useState<number>(25)
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [openForm, setOpenForm] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(2);
+    const [totalPosts, setTotalPosts] = useState<number>(0);
+    const [loadingPosts, setLoadingPosts] = useState<boolean>(false)
+
+    const fetchPosts = useCallback(async () => {
+        setLoadingPosts(true)
+        try {
+            const { data } = await axios.get(`/api/get-community-posts?page=${page}&limit=${limit}`, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+            });
+
+            if (data.success) {
+                toast.success(data.message);
+                setPosts(data.data);
+                setTotalPosts(data.totalPosts);  // 👈 Save total number of posts
+                return;
+            }
+            toast.error(data.message);
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || "Server Error";
+            toast.error(errMsg);
+        }
+        finally {
+            setLoadingPosts(false)
+        }
+    }, [page, limit])
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const { data } = await axios.get(`/api/get-community-posts?page=${page}&limit=${limit}`, {
-                    headers: { "Content-Type": "application/json" },
-                    withCredentials: true
-                })
-                if (data.success) {
-                    toast.success(data.message)
-                    setPosts(data.data)
-                    return
-                }
-                toast.error(data.message)
-            } catch (error: any) {
-                const errMsg = error?.response?.data?.message || "Server Error";
-                toast.error(errMsg)
-            }
-        }
-        fetchPosts()
-    }, [])
-    console.log(posts)
+        fetchPosts();
+    }, [page]); // 👈 re-fetch when page changes
 
     const handleToggle = () => {
-        setIsExpanded((prev) => !prev);
+        setIsExpanded(prev => !prev);
     };
+
+    const totalPages = Math.ceil(totalPosts / limit);
+
     return (
         <>
             <main className="relative flex min-h-screen w-full bg-stone-50">
@@ -70,52 +85,97 @@ function CommunityPosts() {
                 </aside>
 
                 <Separator orientation="vertical" className="bg-stone-200" />
-                {
-                    openForm && <CommunityPostForm open={openForm} onClose={() => setOpenForm(false)} />
-                }
+
+                {openForm && <CommunityPostForm open={openForm} onClose={() => setOpenForm(false)} refetchPosts={fetchPosts} />}
+
                 {/* Main Content */}
                 <section className="flex-1 p-8 w-[calc(100vw-256px)]">
-                    {/* Card */}
                     {
-                        posts && posts.length>0 && posts.map(post=>(
-                            <div key={post.id} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
-                                {/* Username */}
-                                <div className="text-sm text-stone-500" style={{ fontFamily: 'Quicksand Variable' }}>
-                                    Posted by <span className="font-semibold text-stone-700">John Doe</span>
-                                </div>
-
-                                {/* Question Title */}
-                                <h2 className="text-2xl font-bold text-stone-900" style={{ fontFamily: 'Titillium Web' }}>
-                                    {post.question}
-                                </h2>
-
-                                {/* Answer Preview / Full */}
-                                <p className="text-stone-700 leading-relaxed" style={{ fontFamily: 'Quicksand Variable' }}>
-                                    {isExpanded ? post.answer : post.answer.slice(0,80)}
-                                </p>
-
-                                {/* Buttons */}
-                                <div className="flex items-center justify-between mt-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full px-4 py-2 text-sm"
-                                        onClick={handleToggle}
-                                    >
-                                        {isExpanded ? 'Show Less' : 'Read More'}
-                                    </Button>
-                                    <button className="flex items-center gap-1 text-stone-500">
-                                        <ThumbsUp className=' hover:text-red-500 transition' />
-                                        <span className="text-sm">Like</span>
-                                    </button>
-                                </div>
+                        loadingPosts && (
+                            <div className='w-full flex items-center justify-center h-[50vh]'>
+                                <Loader2 className='w-24 h-24 animate-spin' />
                             </div>
-                        ))
+                        )
                     }
+                    {
+                        posts.length === 0 && (
+                            <div className='w-full h-[60vh] flex justify-center items-center'>
+                                <h1 className='text-4xl font-semibold text-stone-800'>No Posts yet...</h1>
+                            </div>
+                        )
+                    }
+                    {/* Posts */}
+                    {!loadingPosts && posts.length > 0 && posts.map(post => (
+                        <div key={post.id} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
+                            {/* Username */}
+                            <div className="text-sm text-stone-500" style={{ fontFamily: 'Quicksand Variable' }}>
+                                Posted by <span className="font-semibold text-stone-700">John Doe</span>
+                            </div>
+
+                            {/* Question Title */}
+                            <h2 className="text-2xl font-bold text-stone-900" style={{ fontFamily: 'Titillium Web' }}>
+                                {post.question}
+                            </h2>
+
+                            {/* Answer Preview */}
+                            <p className="text-stone-700 leading-relaxed" style={{ fontFamily: 'Quicksand Variable' }}>
+                                {isExpanded ? post.answer : post.answer.slice(0, 80)}
+                            </p>
+
+                            {/* Buttons */}
+                            <div className="flex items-center justify-between mt-4">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-full px-4 py-2 text-sm"
+                                    onClick={handleToggle}
+                                >
+                                    {isExpanded ? 'Show Less' : 'Read More'}
+                                </Button>
+                                <button className="flex items-center gap-1 text-stone-500">
+                                    <ThumbsUp className="hover:text-red-500 transition" />
+                                    <span className="text-sm">Like</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Pagination */}
+                    <Pagination>
+                        <PaginationContent>
+
+                            {/* Previous */}
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    className={`cursor-pointer ${page === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+                                    onClick={() => {
+                                        if (page > 1) setPage(prev => prev - 1);
+                                    }}
+                                />
+                            </PaginationItem>
+
+                            {/* Current Page */}
+                            <PaginationItem>
+                                <PaginationLink isActive>
+                                    {page}
+                                </PaginationLink>
+                            </PaginationItem>
+
+                            {/* Next */}
+                            <PaginationItem>
+                                <PaginationNext
+                                    className={`cursor-pointer ${page === totalPages ? 'opacity-50 pointer-events-none' : ''}`}
+                                    onClick={() => {
+                                        if (page < totalPages) setPage(prev => prev + 1);
+                                    }}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </section>
             </main>
         </>
-    )
+    );
 }
 
 export default CommunityPosts
