@@ -1,7 +1,7 @@
 FROM python:3.13.3-alpine3.21
 
-# Install ffmpeg and other dependencies
-RUN apk update && apk add --no-cache ffmpeg
+# Update and install necessary packages including ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
 # Set the working directory in the container
 WORKDIR /app
