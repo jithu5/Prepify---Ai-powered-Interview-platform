@@ -27,9 +27,10 @@ model User {
   forgot_password_otp_expiry DateTime?
   created_at                 DateTime            @default(now())
   updated_at                 DateTime            @updatedAt
-  interviewSessions          Interview_session[] // Relation to Interview_session model
-  questions                  Question[] // Relation to Question model
-  technologies               Technology[] // Relation to Technology model
+  interviewSessions          Interview_session[] // Relation One-Many to Interview_session model
+  questions                  Question[] // Relation One-Many to Question model
+  technologies               Technology[] // Relation One-Many to Technology model
+  posts                      Post[] // Relation One-Many to Post model
 }
 
 model Interview_session {
@@ -42,9 +43,9 @@ model Interview_session {
   position_type String
   level         String
   max_count     Int          @default(10)
-  questions     Question[] // Relation to Question model
-  technologies  Technology[] // Relation to Technology model
-  Response      Response[]
+  questions     Question[] // Relation one-Many to Question model
+  technologies  Technology[] // Relation One-Many to Technology model
+  Response      Response[] // Relation One-Many to Response model
 }
 
 model Question {
@@ -81,4 +82,53 @@ model Response {
   score                Int?
   created_at           DateTime          @default(now())
   updated_at           DateTime          @updatedAt
+}
+
+model Post {
+  id         String    @id @default(cuid())
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    String    @unique
+  question   String
+  answer     String    @db.VarChar(500)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  comments   Comment[] // Relation One-Many to Comment model
+  likes      Like[] // Relation One-Many to Like model
+  post_tags  PostTag[] // Relation One-Many to PostTag model
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String
+  comment    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Tag {
+  id         String    @id @default(cuid())
+  tag_name   String    @unique @db.VarChar(50)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  tag_ids    PostTag[] // Relation One-Many to PostTag model
+}
+
+// Many-Many relationship table between Post and Tag
+model PostTag {
+  id         String   @id @default(cuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  tag        Tag      @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id     String
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post_id    String
 }

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import '@fontsource/titillium-web';
+import '@fontsource-variable/quicksand';
 import OtpVerification from "./OtpVerificatin"
 import axios from "axios"
 import { toast } from "sonner"
@@ -18,7 +19,7 @@ function NavBar() {
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
     const [modalOpen, setModalOpen] = useState<boolean>(false)
-    const [sendingOtp,setSendingOtp] = useState<boolean>(false)
+    const [sendingOtp, setSendingOtp] = useState<boolean>(false)
     console.log(session)
 
     useEffect(() => {
@@ -40,7 +41,7 @@ function NavBar() {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             })
-            
+
             if (data.success) {
                 toast.success(data.message)
                 setModalOpen(true)
@@ -51,7 +52,7 @@ function NavBar() {
             const errMsg = error?.response?.data?.message;
             toast.error(errMsg)
         }
-        finally{
+        finally {
             setSendingOtp(false)
         }
     }
@@ -63,7 +64,8 @@ function NavBar() {
                     fontFamily: 'Titillium Web'
                 }}>PREPIFY</h1>
             </Link>
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-16">
+                <Link href={'/community'} className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>community</Link>
                 {
                     session?.user ? (
                         <>
@@ -87,7 +89,7 @@ function NavBar() {
                                             {session?.user && !session.user.isAccountVerified && (
                                                 <li>
                                                     <button disabled={sendingOtp} onClick={handleModalOpen}
-                                                        className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${sendingOtp ? 'text-stone-200':''}`}>
+                                                        className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${sendingOtp ? 'text-stone-200' : ''}`}>
                                                         Verify Account
                                                     </button>
                                                 </li>

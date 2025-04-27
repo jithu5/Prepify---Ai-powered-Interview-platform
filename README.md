@@ -14,9 +14,9 @@ Feel free to explore the code, give feedback, or contribute, but please note tha
 
 Stay tuned for updates!
 
-## Repository 
+## Repository
 
-```
+``` bash
 
 .
 ├── src/                          # Source code directory
@@ -128,6 +128,11 @@ The application uses a PostgreSQL database with the following key resources:
 - Questions: Stores generated questions
 - Technoloies: Stores technology stack information
 - Responses: Stores AI feedback and score
+- Post: Store post created by user
+- Comment: Store comments written by user in a post
+- Like: Store the like done by user in a post
+- Tag: Store tagname created for post
+- PostTag: Many-Many relationship table to store Tag's id and User's id
 
 **Authentication:**
 
@@ -135,3 +140,4 @@ The application uses a PostgreSQL database with the following key resources:
 - Credentials provider for email/password authentication
 - Session management using JWT tokens
 - Secure password hashing with bcrypt
+- OTP send to corresponsing Email for verification
