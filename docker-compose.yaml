@@ -1,0 +1,18 @@
+services:
+  next:
+    build:
+      context: ./Next
+      dockerfile: Dockerfile
+    env_file:
+      - ./Next/.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

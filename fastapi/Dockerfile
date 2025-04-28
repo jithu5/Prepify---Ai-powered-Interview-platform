@@ -1,21 +1,24 @@
-FROM python:3.13.3-alpine3.21
+# fastapi/Dockerfile
 
-# Update and install necessary packages including ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg
+# Use Python 3.12 slim
+FROM python:3.12-slim AS base
 
-# Set the working directory in the container
+# Install required system dependencies (like ffmpeg)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
 WORKDIR /app
 
-# Copy the requirements.txt file into the container
+# Install Python dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies
-RUN pip install -r requirements.txt
-
-# Copy the application code into the container
+# Copy all code
 COPY . .
 
-# Expose the port the app will run on
+# Expose the port
 EXPOSE 8000
 
 # Run the application with uvicorn, setting the correct path to your FastAPI app

@@ -71,8 +71,7 @@ export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: P
                 for (const [key, value] of formData.entries()) {
                     console.log(`${key}:`, value);
                 }
-
-                const { data } = await axios.post("/api/speech-to-text", formData, {
+                const { data } = await axios.post("http://localhost:8000/api/speech-to-text", formData, {
                     withCredentials: true
                 });
                 console.log(data);

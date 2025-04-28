@@ -1,0 +1,10 @@
+# Ignore node_modules in builds
+node_modules
+npm-debug.log
+.next
+out
+*.env
+.DS_Store
+.git
+.vscode
+.idea

@@ -1,0 +1,21 @@
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+
+# Ignore local tools
+*.db
+.DS_Store
+.vscode
+.idea
+.git
+
+# Pipenv or Poetry stuff if you use
+Pipfile
+Pipfile.lock
+poetry.lock
+venv
