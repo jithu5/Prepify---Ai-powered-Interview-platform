@@ -11,6 +11,9 @@ COPY package.json package-lock.json ./
 # Install Node.js dependencies
 RUN npm install
 
+# Run Prisma generate to generate the Prisma client
+RUN npx prisma generate
+
 # Copy rest of the application
 COPY . .
 
