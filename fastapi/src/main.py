@@ -1,19 +1,28 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import shutil
 import uuid
 
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from pydub import AudioSegment
-import torch
 import numpy as np
 
 app = FastAPI()
+# --- ✅ CORS settings ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # 👈 Only allow your frontend origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load Whisper Tiny model once
-processor = WhisperProcessor.from_pretrained("openai/whisper-tiny.en")
-model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-tiny.en")
+processor = WhisperProcessor.from_pretrained("openai/whisper-tiny")
+model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-tiny")
+model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="english", task="transcribe")
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

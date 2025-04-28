@@ -1,24 +1,12 @@
-# Use slim Debian-based Node.js image
-FROM node:lts-slim
-
-# Set working directory
+# Stage 1 - Build
+FROM node:22-alpine AS builder
 WORKDIR /app
-
 # Copy package files separately for caching
 COPY package.json package-lock.json ./
-# RUN npm ci
-
-# Install Node.js dependencies
 RUN npm install
-
 # Run Prisma generate to generate the Prisma client
+COPY . .
 RUN npx prisma generate
 
-# Copy rest of the application
-COPY . .
-
-# Expose Next.js dev server port
 EXPOSE 3000
-
-# Run the development server
 CMD ["npm", "run", "dev"]
