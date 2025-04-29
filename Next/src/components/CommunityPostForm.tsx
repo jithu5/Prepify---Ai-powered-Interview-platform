@@ -25,7 +25,7 @@ function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
             e.preventDefault();
             const tag = tagValue.trim();
             if (!tagLists.includes(tag)) {
-                const updated = [...tagLists, tag];
+                const updated = [tag,...tagLists];
                 setTagLists(updated);
                 setValue('tags', updated);
             }

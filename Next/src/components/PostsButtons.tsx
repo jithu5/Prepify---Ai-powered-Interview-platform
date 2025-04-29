@@ -5,6 +5,7 @@ import { Post } from './CommunityPosts'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 interface Props{
     isExpanded:boolean,
@@ -15,6 +16,7 @@ interface Props{
 
 function PostsButtons({ isExpanded, post, setIsExpanded, setPosts }:Props) {
     const {data:session}= useSession()
+    const router = useRouter()
 
     const handleToggle = () => {
         setIsExpanded(prev => !prev);
@@ -77,11 +79,12 @@ function PostsButtons({ isExpanded, post, setIsExpanded, setPosts }:Props) {
               >
                   {isExpanded ? 'Show Less' : 'Read More'}
               </Button>
-              <p className='flex items-center justify-center gap-2'>
+              <div className='flex items-center justify-center gap-2'>
+                  <p className='text-stone-700 text-md cursor-pointer' onClick={() => router.push(`/community/${post.id}`)}>View</p>
                   <MessageCircleMore />
                   {post.comments.length}
                 comments
-              </p>
+              </div>
               <button
                   className='flex items-center gap-1'
               >
