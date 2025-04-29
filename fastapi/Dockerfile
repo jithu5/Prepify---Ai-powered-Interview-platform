@@ -8,6 +8,9 @@ RUN apt-get update && \
     apt-get install -y ffmpeg libsndfile1 && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt update && apt install -y ffmpeg
+
+
 # Copy requirements file
 COPY requirements.txt .
 

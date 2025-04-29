@@ -59,15 +59,36 @@ export async function GET(req: NextRequest) {
             skip,
             take: limit,
             orderBy: {
-                created_at: "desc" // Optional: Sort by latest
+                created_at: "desc"
+            },
+            include: {
+                likes: {
+                    select: {
+                        user_id: true
+                    }
+                },
+                comments: {
+                    select: {
+                        user_id: true
+                    }
+                }
             }
         });
+
+        // Transform likes to an array of user_ids
+        const transformedPosts = posts.map(post => ({
+            ...post,
+            likes: post.likes.map(like => like.user_id),
+            comments: post.comments.map(comment => comment.user_id)
+        }));
+
 
         if (posts.length === 0) {
             return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
         }
+        console.log(posts)
 
-        return NextResponse.json({ message: "Posts fetched successfully", success: true, data: posts, totalPosts: totalPosts.length }, { status: 200 });
+        return NextResponse.json({ message: "Posts fetched successfully", success: true, data: transformedPosts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching posts:", error);

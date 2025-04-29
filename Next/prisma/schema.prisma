@@ -31,6 +31,8 @@ model User {
   questions                  Question[] // Relation One-Many to Question model
   technologies               Technology[] // Relation One-Many to Technology model
   posts                      Post[] // Relation One-Many to Post model
+  likes                      Like[] // Relation One-Many to Like model
+  Comment                    Comment[] // Relation One-Many to Comment model
 }
 
 model Interview_session {
@@ -87,7 +89,7 @@ model Response {
 model Post {
   id         String    @id @default(cuid())
   user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id    String    
+  user_id    String
   question   String
   answer     String    @db.VarChar(500)
   created_at DateTime  @default(now())
@@ -101,6 +103,8 @@ model Comment {
   id         String   @id @default(cuid())
   post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
   post_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    String
   comment    String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -110,8 +114,12 @@ model Like {
   id         String   @id @default(cuid())
   post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
   post_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+ @@unique([user_id, post_id], name: "userPost") // ✅ Composite unique constraint
 }
 
 model Tag {

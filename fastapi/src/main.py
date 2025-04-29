@@ -55,6 +55,7 @@ async def upload_audio(audio: UploadFile = File(...)):
         return JSONResponse(content={"transcription": transcription})
     
     except Exception as e:
+        print(e)
         return JSONResponse(status_code=500, content={"error": str(e)})
     
     finally:

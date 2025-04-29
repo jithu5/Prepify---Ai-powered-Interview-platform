@@ -11,14 +11,17 @@ import {
     Pagination, PaginationContent, PaginationItem,
     PaginationLink, PaginationNext, PaginationPrevious
 } from './ui/pagination';
+import PostsButtons from './PostsButtons';
 
-interface Post {
+export interface Post {
     id: string;
     question: string;
     answer: string;
     user_id: string;
     created_at?: Date;
     updated_at?: Date;
+    likes: string[]
+    comments : string[]
 }
 
 function CommunityPosts() {
@@ -40,7 +43,16 @@ function CommunityPosts() {
 
             if (data.success) {
                 toast.success(data.message);
-                setPosts(data.data);
+                setPosts(prev => [
+                    ...prev,
+                    ...data.data.map((post: any) => ({
+                        ...post,
+                        likes: post.likes || [],
+                        created_at: post.created_at ? new Date(post.created_at).toISOString() : null,
+                        updated_at: post.updated_at ? new Date(post.updated_at).toISOString() : null,
+                    }))
+                ]);
+
                 setTotalPosts(data.totalPosts);  // 👈 Save total number of posts
                 return;
             }
@@ -57,10 +69,6 @@ function CommunityPosts() {
     useEffect(() => {
         fetchPosts();
     }, [page]); // 👈 re-fetch when page changes
-
-    const handleToggle = () => {
-        setIsExpanded(prev => !prev);
-    };
 
     const totalPages = Math.ceil(totalPosts / limit);
 
@@ -123,20 +131,7 @@ function CommunityPosts() {
                             </p>
 
                             {/* Buttons */}
-                            <div className="flex items-center justify-between mt-4">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="rounded-full px-4 py-2 text-sm"
-                                    onClick={handleToggle}
-                                >
-                                    {isExpanded ? 'Show Less' : 'Read More'}
-                                </Button>
-                                <button className="flex items-center gap-1 text-stone-500">
-                                    <ThumbsUp className="hover:text-red-500 transition" />
-                                    <span className="text-sm">Like</span>
-                                </button>
-                            </div>
+                            <PostsButtons isExpanded={isExpanded} setIsExpanded={setIsExpanded} post={post} setPosts={setPosts} />
                         </div>
                     ))}
 
