@@ -67,27 +67,41 @@ export async function GET(req: NextRequest) {
                         user_id: true
                     }
                 },
-                comments: {
+                Answers: {
                     select: {
                         user_id: true
+                    }
+                },
+                user:{
+                    select:{
+                        firstname:true
+                    }
+                },
+                post_tags:{
+                    select:{
+                        tag:{
+                            select:{
+                                tag_name:true
+                            }
+                        }
                     }
                 }
             }
         });
-
         // Transform likes to an array of user_ids
         const transformedPosts = posts.map(post => ({
             ...post,
             likes: post.likes.map(like => like.user_id),
-            comments: post.comments.map(comment => comment.user_id)
+            answers: post.Answers.map(answer => answer.user_id),
+            username:post.user.firstname,
+            tags:post.post_tags.map(tag=>tag.tag.tag_name)
         }));
+        console.log(transformedPosts)
 
 
         if (posts.length === 0) {
             return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
         }
-        console.log(posts)
-
         return NextResponse.json({ message: "Posts fetched successfully", success: true, data: transformedPosts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {

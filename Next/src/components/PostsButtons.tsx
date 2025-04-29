@@ -6,22 +6,16 @@ import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface Props{
-    isExpanded:boolean,
     post:Post,
-    setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
     setPosts:React.Dispatch<React.SetStateAction<Post[]>>
 }
 
-function PostsButtons({ isExpanded, post, setIsExpanded, setPosts }:Props) {
+function PostsButtons({ post, setPosts }:Props) {
     const {data:session}= useSession()
     const router = useRouter()
-
-    const handleToggle = () => {
-        setIsExpanded(prev => !prev);
-    };
-
     const addLike = async (postId: string) => {
         if (!session?.user || !session?.user.id) {
             toast.error("Unauthorized")
@@ -71,20 +65,13 @@ function PostsButtons({ isExpanded, post, setIsExpanded, setPosts }:Props) {
   return (
     <>
           <div className="flex items-center justify-between mt-4">
-              <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full px-4 py-2 text-sm"
-                  onClick={handleToggle}
-              >
-                  {isExpanded ? 'Show Less' : 'Read More'}
-              </Button>
+            
               <div className='flex items-center justify-center gap-2'>
-                  <p className='text-stone-700 text-md cursor-pointer' onClick={() => router.push(`/community/${post.id}`)}>View</p>
                   <MessageCircleMore />
-                  {post.comments.length}
+                  {post.answers.length}
                 comments
               </div>
+              <Link className='cursor-pointer text-stone-800' href={`/community/${post.id}`}>Read</Link>
               <button
                   className='flex items-center gap-1'
               >

@@ -32,7 +32,7 @@ model User {
   technologies               Technology[] // Relation One-Many to Technology model
   posts                      Post[] // Relation One-Many to Post model
   likes                      Like[] // Relation One-Many to Like model
-  Comment                    Comment[] // Relation One-Many to Comment model
+  Answer                    Answer[] // Relation One-Many to Answer model
 }
 
 model Interview_session {
@@ -94,18 +94,18 @@ model Post {
   answer     String    @db.VarChar(500)
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  comments   Comment[] // Relation One-Many to Comment model
+  Answers   Answer[] // Relation One-Many to Answer model
   likes      Like[] // Relation One-Many to Like model
   post_tags  PostTag[] // Relation One-Many to PostTag model
 }
 
-model Comment {
+model Answer {
   id         String   @id @default(cuid())
   post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
   post_id    String
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id    String
-  comment    String
+  answer    String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }

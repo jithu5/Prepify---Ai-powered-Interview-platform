@@ -34,13 +34,17 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
                         user_id: true
                     }
                 },
-                comments: {
+                Answers: {
                     select: {
                         id: true,
-                        user_id: true,
-                        comment: true,
+                        answer: true,
                         created_at: true,
-                        updated_at: true
+                        updated_at: true,
+                        user:{
+                            select:{
+                                firstname:true
+                            }
+                        }
                     }
                 }
             }

@@ -20,7 +20,6 @@ function NavBar() {
     const menuRef = useRef<HTMLDivElement>(null)
     const [modalOpen, setModalOpen] = useState<boolean>(false)
     const [sendingOtp, setSendingOtp] = useState<boolean>(false)
-    console.log(session)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

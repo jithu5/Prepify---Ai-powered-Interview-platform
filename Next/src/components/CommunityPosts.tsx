@@ -12,27 +12,30 @@ import {
     PaginationLink, PaginationNext, PaginationPrevious
 } from './ui/pagination';
 import PostsButtons from './PostsButtons';
+import { formatRelativeTime } from '@/lib/FormateRelativeTime';
 
 export interface Post {
     id: string;
     question: string;
     answer: string;
     user_id: string;
-    created_at?: Date;
+    created_at: Date;
     updated_at?: Date;
     likes: string[]
-    comments : string[]
+    answers: string[],
+    username: string
+    tags: string[]
 }
 
 function CommunityPosts() {
-    const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [posts, setPosts] = useState<Post[]>([]);
     const [openForm, setOpenForm] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(2);
+    const [limit, setLimit] = useState<number>(25);
     const [totalPosts, setTotalPosts] = useState<number>(0);
     const [loadingPosts, setLoadingPosts] = useState<boolean>(false)
 
+    
     const fetchPosts = useCallback(async () => {
         setLoadingPosts(true)
         try {
@@ -43,15 +46,12 @@ function CommunityPosts() {
 
             if (data.success) {
                 toast.success(data.message);
-                setPosts(prev => [
-                    ...prev,
-                    ...data.data.map((post: any) => ({
+                setPosts(
+                    data.data.map((post: Post) => ({
                         ...post,
                         likes: post.likes || [],
-                        created_at: post.created_at ? new Date(post.created_at).toISOString() : null,
-                        updated_at: post.updated_at ? new Date(post.updated_at).toISOString() : null,
                     }))
-                ]);
+                );
 
                 setTotalPosts(data.totalPosts);  // 👈 Save total number of posts
                 return;
@@ -68,7 +68,7 @@ function CommunityPosts() {
 
     useEffect(() => {
         fetchPosts();
-    }, [page]); // 👈 re-fetch when page changes
+    }, [page]); // ✅ No cleanup👈 re-fetch when page changes
 
     const totalPages = Math.ceil(totalPosts / limit);
 
@@ -116,22 +116,27 @@ function CommunityPosts() {
                     {!loadingPosts && posts.length > 0 && posts.map(post => (
                         <div key={post.id} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
                             {/* Username */}
-                            <div className="text-sm text-stone-500" style={{ fontFamily: 'Quicksand Variable' }}>
-                                Posted by <span className="font-semibold text-stone-700">John Doe</span>
+                            <div className="text-sm text-stone-500 flex items-center px-2 justify-between" style={{ fontFamily: 'Quicksand Variable' }}>
+                                <p>
+
+                                    Posted by <span className="font-semibold text-stone-700">{post.username}</span>
+                                </p>
+                                <p>
+                                    {formatRelativeTime(new Date(post.created_at)?.toISOString())}
+                                </p>
                             </div>
 
                             {/* Question Title */}
                             <h2 className="text-2xl font-bold text-stone-900" style={{ fontFamily: 'Titillium Web' }}>
                                 {post.question}
                             </h2>
-
-                            {/* Answer Preview */}
-                            <p className="text-stone-700 leading-relaxed" style={{ fontFamily: 'Quicksand Variable' }}>
-                                {isExpanded ? post.answer : post.answer.slice(0, 80)}
-                            </p>
-
+                            <div className='w-full flex items-center gap-1'>
+                                {post.tags && post.tags.map((tag, index) => (
+                                    <span key={index} className='text-md font-light text-stone-700 italic'>#{tag}</span>
+                                ))}
+                            </div>
                             {/* Buttons */}
-                            <PostsButtons isExpanded={isExpanded} setIsExpanded={setIsExpanded} post={post} setPosts={setPosts} />
+                            <PostsButtons post={post} setPosts={setPosts} />
                         </div>
                     ))}
 
