@@ -2,18 +2,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, SendHorizontal } from "lucide-react";
 import { formatRelativeTime } from "@/lib/FormateRelativeTime";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { randomUUID } from "crypto";
 
 interface Post {
     id: string;
     question: string;
     answer: string;
     likes: string[]; // user_ids
-    answers: {
+    Answers: {
         id: string;
         answer: string;
-        user_id: string;
+        firstname: string;
         created_at: string;
     }[];
     created_at: Date,
@@ -25,16 +28,18 @@ function PostPage() {
     const [post, setPost] = useState<Post | null>(null);
     const [userId, setUserId] = useState<string>(""); // Replace with session logic
     const { postId } = useParams()
+    const [answer, setAnswer] = useState<string>("")
+    const [postingAnswer, setPostingAnswer] = useState<boolean>(false)
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await axios.get(`/api/post-byId/${postId}`); // Replace 123 with post ID
+            const res = await axios.get(`/api/post-byId/${postId}`);
             setPost(res.data.post);
-            setUserId(res.data.userId); // example user ID from session
+            setUserId(res.data.userId);
         };
         fetchData();
     }, []);
-    console.log(post)
+
     const hasLiked = post?.likes.includes(userId);
 
     const handleLikeToggle = async () => {
@@ -55,6 +60,40 @@ function PostPage() {
         );
     };
 
+    const addAnswer = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (answer.trim() === "") {
+            toast.error("Answer is empty")
+            return
+        }
+        setPostingAnswer(true)
+        try {
+            const { data } = await axios.post('/api/post-answer', {
+                answer, postId
+            }, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+            })
+
+            if (data.success) {
+                toast.success(data.message)
+                setPost((prev) => prev ? {
+                    ...prev,
+                    answers: [...(prev.Answers || []), data.answer]
+                } : null)
+                return
+            }
+            toast.error(data.message)
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || "Server error in posting answer"
+            toast.error(errMsg)
+        }
+        finally {
+            setAnswer("")
+            setPostingAnswer(false)
+        }
+    }
+
     if (!post) return (
         <div className="min-h-screen w-full flex justify-center items-center">
             <Loader2 className="w-24 h-24 animate-spin" />
@@ -62,21 +101,21 @@ function PostPage() {
     );
 
     return (
-        <div className="max-w-7xl mx-auto mt-24 px-4 py-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-2 font-sans relative">
+        <div className="max-w-7xl mx-auto mt-12 md:mt-24 px-4 sm:px-6 lg:px-8 py-6 md:py-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 font-sans relative">
 
-            {/* MAIN CONTENT */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* MAIN CONTENT - Reordered to appear first on mobile */}
+            <div className="md:col-span-2 space-y-6 order-2 md:order-1">
 
                 {/* Question */}
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-bold text-gray-900 capitalize">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 capitalize">
                         {post.question}
                     </h1>
-                    <h1 className="text-xl font-medium text-gray-800 capitalize">
+                    <h1 className="text-lg sm:text-xl font-medium text-gray-800 capitalize">
                         Answer: {post.answer}
                     </h1>
-                    <div className="text-sm text-gray-600 flex items-center gap-2">
-                        <img src="/amazon-logo.png" alt="Amazon" className="w-5 h-5" />
+                    <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-2">
+                        <img src="/amazon-logo.png" alt="Amazon" className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>Asked at Amazon • {formatRelativeTime(new Date(post.created_at).toISOString())}</span>
                     </div>
                 </div>
@@ -86,7 +125,7 @@ function PostPage() {
                     {["⭐ Save 45", "👍 I was asked this", "🔗 Share", "🚩 Flag"].map((text) => (
                         <button
                             key={text}
-                            className="px-3 py-1 rounded-md border bg-white text-sm hover:bg-gray-50 shadow-sm"
+                            className="px-2 py-1 sm:px-3 sm:py-1 rounded-md border bg-white text-xs sm:text-sm hover:bg-gray-50 shadow-sm"
                         >
                             {text}
                         </button>
@@ -94,81 +133,88 @@ function PostPage() {
                 </div>
 
                 {/* Guidelines */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-700 space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-gray-700 space-y-2">
                     <p className="font-semibold">Community Guidelines</p>
-                    <ul className="list-disc pl-5 space-y-1">
+                    <ul className="list-disc pl-4 sm:pl-5 space-y-1">
                         <li>
                             <strong>Stay on topic.</strong> Use this section for submitting
                             solutions and providing feedback.
                         </li>
                         <li>
-                            <strong>Be inclusive.</strong> Respect everyone’s opinions and
+                            <strong>Be inclusive.</strong> Respect everyone's opinions and
                             beliefs.
                         </li>
                     </ul>
                 </div>
 
                 {/* Answer Input */}
-                <div className="flex gap-3 items-start">
-                    <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
+                <form onSubmit={addAnswer} className="flex gap-2 items-start">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm sm:text-base">
                         A
                     </div>
                     <textarea
+                        value={answer}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAnswer(e.target.value)}
                         placeholder="Add your own answer to this question..."
-                        className="w-full p-3 border border-gray-300 rounded-lg resize-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg resize-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                         rows={4}
                     ></textarea>
-                </div>
+                    <Button type="submit" variant={"default"} className="w-10 h-10 rounded-full self-end flex items-center justify-center">{
+                        postingAnswer ? (<><Loader2 className="w-3 h-3 animate-spin" /></>) : (<><SendHorizontal /></>)}</Button>
+                </form>
 
                 {/* Answers */}
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                        Answers (34)
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+                        Answers ({post.Answers?.length || 0})
                     </h2>
+                    <div className="flex flex-col w-full items-center gap-3">
+                        {post.Answers && post.Answers.length > 0 && post.Answers.map(ans=>(
+                            <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm w-full">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-xs sm:text-sm">
 
-                    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-sm">
-                                    BS
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                                                {ans.firstname}.
+                                                <span className="ml-1 sm:ml-2 text-purple-600 text-xs sm:text-sm bg-purple-100 px-1 sm:px-2 py-0.5 rounded-full">
+                                                    Member ⭐ 1k
+                                                </span>
+                                            </p>
+                                            <p className="text-xs sm:text-sm text-gray-500">{new Date(ans.created_at).toISOString()}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-orange-600 text-xs sm:text-sm font-semibold">
+                                        🔥 Hot
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-semibold text-gray-900">
-                                        Brijesh S.
-                                        <span className="ml-2 text-purple-600 text-sm bg-purple-100 px-2 py-0.5 rounded-full">
-                                            Member ⭐ 1k
-                                        </span>
-                                    </p>
-                                    <p className="text-sm text-gray-500">April 17, 2025</p>
-                                </div>
+                                <p className="mt-2 sm:mt-3 text-gray-800 text-sm sm:text-base leading-relaxed">
+                                    {ans.answer}
+                                </p>
                             </div>
-                            <div className="text-orange-600 text-sm font-semibold">
-                                🔥 Hot
-                            </div>
-                        </div>
-                        <p className="mt-3 text-gray-800 leading-relaxed">
-                            A visionary who is committed to address real world problems with
-                            guts, data, and leadership. A PM is the voice of the user and
-                            prioritizes what brings most value to the customer and business.
-                        </p>
+                        ))
+                         
+                        }
                     </div>
                 </div>
             </div>
-            {/* <Separator orientation="vertical" /> */}
-            {/* SIDEBAR */}
-            <aside className="space-y-6 ">
+
+            {/* SIDEBAR - Appears first on mobile */}
+            <aside className="space-y-4 sm:space-y-6 order-1 md:order-2 max-md:mt-10">
                 {/* Interview Details */}
-                <div className="bg-white p-4 border rounded-lg shadow-sm">
-                    <h3 className="font-semibold text-gray-900 mb-2">Interview Details</h3>
-                    <p><strong>Role:</strong> Product Manager</p>
-                    <p><strong>Company:</strong> Amazon</p>
-                    <p><strong>Category:</strong> Behavioral</p>
+                <div className="bg-white p-3 sm:p-4 border rounded-lg shadow-sm">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Interview Details</h3>
+                    <p className="text-xs sm:text-sm"><strong>Role:</strong> Product Manager</p>
+                    <p className="text-xs sm:text-sm"><strong>Company:</strong> Amazon</p>
+                    <p className="text-xs sm:text-sm"><strong>Category:</strong> Behavioral</p>
                 </div>
 
                 {/* Related Questions */}
-                <div className="bg-white p-4 border rounded-lg shadow-sm">
-                    <h3 className="font-semibold text-gray-900 mb-2">Related Questions</h3>
-                    <ul className="space-y-2 text-sm">
+                <div className="bg-white p-3 sm:p-4 border rounded-lg shadow-sm">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Related Questions</h3>
+                    <ul className="space-y-2 text-xs sm:text-sm">
                         <li className="text-blue-600 hover:underline">
                             How would you explain the role of a product manager to a 4-year-old?
                         </li>

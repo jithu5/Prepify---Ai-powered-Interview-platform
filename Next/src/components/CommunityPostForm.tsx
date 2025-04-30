@@ -42,7 +42,7 @@ function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
     const onSubmit = async (formData: any) => {
         console.log(formData);
         try {
-            const {data}= await axios.post("/api/upload-posts",formData,{
+            const {data}= await axios.post("/api/create-post",formData,{
                 headers:{'Content-Type':'application/json'},
                 withCredentials:true
             })

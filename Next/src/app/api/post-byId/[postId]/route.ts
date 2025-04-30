@@ -40,22 +40,21 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
                         answer: true,
                         created_at: true,
                         updated_at: true,
-                        user:{
-                            select:{
-                                firstname:true
+                        user: {
+                            select: {
+                                firstname: true
                             }
                         }
                     }
                 }
             }
         })
-        console.log(post)
         if (!post) {
             return NextResponse.json({ message: "post cannot be found", success: false }, { status: 401 })
         }
-        const transformedPosts = { ...post, likes: post?.likes.map(like=>like.user_id) };
-
-        return NextResponse.json({ message: "🎉 Successfully liked the post", success: true,post:transformedPosts }, { status: 201 })
+        const transformedPosts = { ...post, likes: post?.likes.map(like => like.user_id), Answers: post.Answers.map(answer => ({...answer, firstname: answer.user.firstname})) };
+        console.log(transformedPosts)
+        return NextResponse.json({ message: "🎉 Successfully liked the post", success: true, post: transformedPosts }, { status: 201 })
     } catch (error) {
         console.log("Error in liking post", error)
         return NextResponse.json({ message: "Server error in liking post", success: false }, { status: 500 })
