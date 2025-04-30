@@ -53,7 +53,7 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
             return NextResponse.json({ message: "post cannot be found", success: false }, { status: 401 })
         }
         const transformedPosts = { ...post, likes: post?.likes.map(like => like.user_id), Answers: post.Answers.map(answer => ({...answer, firstname: answer.user.firstname})) };
-        console.log(transformedPosts)
+
         return NextResponse.json({ message: "🎉 Successfully liked the post", success: true, post: transformedPosts }, { status: 201 })
     } catch (error) {
         console.log("Error in liking post", error)

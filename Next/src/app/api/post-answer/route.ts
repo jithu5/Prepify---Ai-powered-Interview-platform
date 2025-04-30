@@ -50,10 +50,22 @@ export async function POST(req: NextRequest) {
                 answer: answer,
                 user_id: user.id,
                 post_id: postId
+            },
+            select:{
+                answer:true,
+                created_at:true,
+                id:true,
+                user:{
+                    select:{
+                        firstname:true
+                    }
+                }
             }
         })
+        
+        const transformedAnswer = {...createAnswer,firstname:createAnswer.user.firstname}
 
-        return NextResponse.json({ message: "Successfully submitted your answer", success: true, answer: createAnswer }, {
+        return NextResponse.json({ message: "Successfully submitted your answer", success: true, answer: transformedAnswer }, {
             status: 201
         })
     } catch (error) {

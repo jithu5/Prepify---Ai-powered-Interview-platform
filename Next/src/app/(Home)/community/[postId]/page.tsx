@@ -76,10 +76,11 @@ function PostPage() {
             })
 
             if (data.success) {
+                console.log(data.answer)
                 toast.success(data.message)
                 setPost((prev) => prev ? {
                     ...prev,
-                    answers: [...(prev.Answers || []), data.answer]
+                    Answers: [...(prev.Answers || []), data.answer]
                 } : null)
                 return
             }
@@ -99,7 +100,7 @@ function PostPage() {
             <Loader2 className="w-24 h-24 animate-spin" />
         </div>
     );
-
+    console.log(post)
     return (
         <div className="max-w-7xl mx-auto mt-12 md:mt-24 px-4 sm:px-6 lg:px-8 py-6 md:py-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 font-sans relative">
 
@@ -170,7 +171,7 @@ function PostPage() {
                     </h2>
                     <div className="flex flex-col w-full items-center gap-3">
                         {post.Answers && post.Answers.length > 0 && post.Answers.map(ans=>(
-                            <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm w-full">
+                            <div key={ans.id} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm w-full">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 sm:gap-3">
                                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-xs sm:text-sm">
@@ -183,7 +184,7 @@ function PostPage() {
                                                     Member ⭐ 1k
                                                 </span>
                                             </p>
-                                            <p className="text-xs sm:text-sm text-gray-500">{new Date(ans.created_at).toISOString()}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500">{new Date(ans.created_at).toISOString() || Date.now()}</p>
                                         </div>
                                     </div>
                                     <div className="text-orange-600 text-xs sm:text-sm font-semibold">
