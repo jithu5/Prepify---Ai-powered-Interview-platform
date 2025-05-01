@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
         console.log(searchParams)
         const pageParam = searchParams.get('page');
         const limitParam = searchParams.get('limit');
+        const tagParams = searchParams.get('tags')
 
         if (!pageParam || !limitParam) {
             return NextResponse.json({
@@ -56,6 +57,18 @@ export async function GET(req: NextRequest) {
         const skip = (page - 1) * limit;
 
         const posts = await prisma.post.findMany({
+            where: tagParams ? {
+                post_tags: {
+                    some: {
+                        tag: {
+                            tag_name: {
+                                contains: tagParams,
+                                mode: "insensitive"
+                            }
+                        }
+                    }
+                }
+            } : undefined,
             skip,
             take: limit,
             orderBy: {
@@ -72,22 +85,23 @@ export async function GET(req: NextRequest) {
                         user_id: true
                     }
                 },
-                user:{
-                    select:{
-                        firstname:true
+                user: {
+                    select: {
+                        firstname: true
                     }
                 },
-                post_tags:{
-                    select:{
-                        tag:{
-                            select:{
-                                tag_name:true
+                post_tags: {
+                    select: {
+                        tag: {
+                            select: {
+                                tag_name: true
                             }
                         }
                     }
                 }
             }
         });
+
         // Transform likes to an array of user_ids
         const transformedPosts = posts.map(post => ({
             ...post,

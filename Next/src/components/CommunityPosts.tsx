@@ -13,6 +13,7 @@ import {
 } from './ui/pagination';
 import PostsButtons from './PostsButtons';
 import { formatRelativeTime } from '@/lib/FormateRelativeTime';
+import { useForm } from 'react-hook-form';
 
 export interface Post {
     id: string;
@@ -28,6 +29,7 @@ export interface Post {
 }
 
 function CommunityPosts() {
+    const { handleSubmit, register, reset, formState: { isSubmitting } } = useForm<{tags: string}>()
     const [posts, setPosts] = useState<Post[]>([]);
     const [openForm, setOpenForm] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
@@ -35,7 +37,7 @@ function CommunityPosts() {
     const [totalPosts, setTotalPosts] = useState<number>(0);
     const [loadingPosts, setLoadingPosts] = useState<boolean>(false)
 
-    
+
     const fetchPosts = useCallback(async () => {
         setLoadingPosts(true)
         try {
@@ -70,6 +72,38 @@ function CommunityPosts() {
         fetchPosts();
     }, [page]); // ✅ No cleanup👈 re-fetch when page changes
 
+    const onSubmit = async (formData: {tags:string}) => {
+        console.log(formData)
+        setLoadingPosts(true)
+        try {
+            const { data } = await axios.get(`/api/get-community-posts?page=${page}&limit=${limit}&tags=${formData.tags}`, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+            });
+
+            if (data.success) {
+                toast.success(data.message);
+                setPosts(
+                    data.data.map((post: Post) => ({
+                        ...post,
+                        likes: post.likes || [],
+                    }))
+                );
+
+                setTotalPosts(data.totalPosts);  // 👈 Save total number of posts
+                return;
+            }
+            toast.error(data.message);
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || "Server Error";
+            toast.error(errMsg);
+        }
+        finally {
+            reset()
+            setLoadingPosts(false)
+        }
+    }
+
     const totalPages = Math.ceil(totalPosts / limit);
 
     return (
@@ -78,18 +112,29 @@ function CommunityPosts() {
 
                 {/* Sidebar */}
                 <aside className="sticky top-36 left-0 h-[calc(100vh-144px)] w-64 bg-white border-r border-stone-200 shadow-sm p-6 flex flex-col gap-6 rounded-tr-2xl">
-                    <h2 className="text-xl font-semibold text-stone-800" style={{ fontFamily: 'Titillium Web' }}>
-                        Menu
-                    </h2>
-                    <Input
-                        type="text"
-                        placeholder="Search interviews..."
-                        className="mt-2 focus-visible:ring-2 focus-visible:ring-stone-400"
-                        style={{ fontFamily: 'Quicksand Variable' }}
-                    />
-                    <Button onClick={() => setOpenForm(true)} variant="default" className="mt-4 rounded-xl shadow-md hover:shadow-lg transition">
-                        Add Interview
-                    </Button>
+                    <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
+
+                        <h2 className="text-xl font-semibold text-stone-800" style={{ fontFamily: 'Titillium Web' }}>
+                            Menu
+                        </h2>
+
+                        <Input
+                            {...register("tags", { required: true })}
+                            type="text"
+                            placeholder="Search interviews with tags..."
+                            className="mt-2 focus-visible:ring-2 focus-visible:ring-stone-400"
+                            style={{ fontFamily: 'Quicksand Variable' }}
+                            />
+                            <Button type='submit' className="mt-4 rounded-xl shadow-md hover:shadow-lg transition w-full" variant={'default'}>{isSubmitting?(
+                                <>
+                                    Searching... <Loader2 className='animate-spin'/>
+                                </>
+                            ):"Search"}</Button>
+                         
+                    </form>
+                        <Button type='button' onClick={() => setOpenForm(true)} variant="default" className="mt-10 rounded-xl shadow-md hover:shadow-lg transition">
+                            Add Interview
+                        </Button>
                 </aside>
 
                 <Separator orientation="vertical" className="bg-stone-200" />
