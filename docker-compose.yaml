@@ -10,6 +10,8 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+    depends_on:
+      - fastapi
 
   fastapi:
     build:

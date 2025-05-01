@@ -13,6 +13,7 @@ __pycache__/
 .vscode
 .idea
 .git
+__pycache__/
 
 # Pipenv or Poetry stuff if you use
 Pipfile

@@ -33,7 +33,7 @@ export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: P
 
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunksRef.current, {
-                            type: "audio/mp3",
+                            type: "audio/wav",
                         });
                         setAudioBlob(audioBlob);
                     };
@@ -62,9 +62,13 @@ export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: P
     // Upload audio file
     const uploadAudio = async (e: React.FormEvent) => {
         e.preventDefault();
+        
         if (audioBlob) {
+            // Create a URL for the audioBlob and play it
+            const audio = new Audio(URL.createObjectURL(audioBlob));
+            audio.play();
             try {
-                const file = new File([audioBlob], "audio.mp3", { type: audioBlob.type });
+                const file = new File([audioBlob], "audio.wav", { type: audioBlob.type });
                 const formData = new FormData();
                 formData.append("audio", file);
 

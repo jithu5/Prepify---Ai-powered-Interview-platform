@@ -1,5 +1,5 @@
 # Stage 1 - Build
-FROM node:22-alpine AS builder
+FROM node:slim
 WORKDIR /app
 # Copy package files separately for caching
 COPY package.json package-lock.json ./
