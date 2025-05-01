@@ -62,17 +62,26 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             where: { interview_session_id: interviewSession[0].id },
             orderBy: { created_at: 'desc' }, // Sorting to get the latest question asked
             take: 1, // Fetch only the last question asked
-        }); 
+        });
 
         if (interviewSession[0].max_count === 0) {
             try {
+                const result = await prisma.response.aggregate({
+                    where: { interview_session_id: id },
+                    _avg: {
+                        score: true,
+                    },
+                });
+
+                const avgScore = result._avg.score ? result._avg.score * 10 : 0;
                 await prisma.interview_session.update({
                     where: { id: id },
                     data: {
-                        end_time: new Date()
+                        end_time: new Date(),
+                        avg_score:avgScore
                     }
                 })
-                return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false}, { status: 400 });
+                return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false }, { status: 400 });
             } catch (error) {
                 console.error("Error updating interview session:", error);
                 return NextResponse.json({ message: "Error updating interview session", success: false }, { status: 500 });
@@ -164,7 +173,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                 max_count: interviewSession[0].max_count - 1,
             }
         })
-        return NextResponse.json({ message: "Question created successfully", success: true, question:createQuestion }, { status: 200 });
+        return NextResponse.json({ message: "Question created successfully", success: true, question: createQuestion }, { status: 200 });
 
     } catch (error) {
         console.error("Error in start interview route:", error);
@@ -259,7 +268,7 @@ export async function POST(request: NextRequest, { params }: { params: { session
                 feedback: feedback,
                 score: score,
                 question_id: questionId,
-                interview_session_id:id
+                interview_session_id: id
             }
         })
         if (!responseData) {

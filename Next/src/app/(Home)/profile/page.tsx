@@ -1,120 +1,217 @@
-'use client';
+// app/profile/page.tsx (or any React component)
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
+"use client"
+
+import { Card } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { toast } from "sonner"
+
 
 interface User {
-    firstname: string;
-    lastname: string;
-    phonenumber: string;
-    email: string;
+    firstname: string
+    lastname: string
+    username: string
+    is_account_verified: boolean
+    email: string
+    phonenumber: number
+    AnswersLength: number
+    AverageScore: number
 }
 
-interface InterviewSession {
-    id: string;
-    createdAt: string;
-    questionsCount: number;
-    answeredCount: number;
+
+const demoUser = {
+    firstname: "Abijith",
+    lastname: "Kumar",
+    username: "abijithk",
+    bio: "Aspiring full-stack dev & AI explorer 🚀",
+    verified: true,
 }
 
-const ProfilePage = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [sessions, setSessions] = useState<InterviewSession[]>([]);
-    const [loading, setLoading] = useState(true);
+const demoStats = {
+    mockCount: 12,
+    avgScore: 82.6,
+    answersGiven: 42,
+    questionsPosted: 17,
+}
+
+const demoInterviews = [
+    {
+        id: "int1",
+        type: "Backend",
+        date: "2025-04-20",
+        score: 85.2,
+    },
+    {
+        id: "int2",
+        type: "Frontend",
+        date: "2025-03-10",
+        score: 79.5,
+    },
+]
+
+const demoPosts = [
+    {
+        id: "post1",
+        title: "How to scale a Node.js app?",
+        tags: ["Node.js", "Backend", "Scalability"],
+        date: "2025-04-10",
+        likes: 5,
+    },
+    {
+        id: "post2",
+        title: "Tips for better technical interviews",
+        tags: ["Interview", "Tips"],
+        date: "2025-04-05",
+        likes: 10,
+    },
+]
+
+const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    })
+
+export default function ProfilePage() {
+    const [tab, setTab] = useState<string>("interviews")
+    const [profileData, setProfileData] = useState<User>()
+    const [profileLoading, setProfileLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        const fetchProfileData = async () => {
+        const fetchUser = async () => {
+            setProfileLoading(true)
             try {
-                const userRes = await axios.get('/api/user');
-                const sessionRes = await axios.get('/api/auth/session');
+                const { data } = await axios.get("/api/profile-user", {
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true
+                })
 
-                setUser(userRes.data.user);
-                // setSessions(sessionRes.data.sessions);
-            } catch (err) {
-                console.error('Error fetching profile:', err);
-            } finally {
-                setLoading(false);
+                if (data.success) {
+                    toast.success(data.message)
+                    setProfileData(data.user)
+                    return
+                }
+                toast.error(data.message)
+            } catch (error: any) {
+                const errMsg = error?.response?.data?.message || "Server error in getting user data";
+                toast.error(errMsg)
             }
-        };
+            finally {
+                setProfileLoading(false)
+            }
+        }
 
-        fetchProfileData();
-    }, []);
+        fetchUser()
+    }, [])
 
+    if (profileLoading) {
+        return (
+            <div className="min-h-screen w-full">Loading</div>
+        )
+    }
     return (
-        <div className="min-h-screen bg-slate-50 pt-36 pb-20 px-6 md:px-24">
-            <h1 className="text-4xl font-bold mb-10 text-gray-800">👤 Your Profile</h1>
-
-            {/* Profile Info */}
-            <Card className="mb-12 shadow-md border border-slate-200">
-                <CardContent className="p-8 space-y-6">
-                    <h2 className="text-2xl font-semibold text-slate-700">User Information</h2>
-                    {loading ? (
-                        <Skeleton className="h-24 w-full" />
-                    ) : user ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-slate-700">
-                            <div>
-                                <p className="text-sm text-slate-500">First Name</p>
-                                <p className="font-medium">{user.firstname}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-500">Last Name</p>
-                                <p className="font-medium">{user.lastname}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-500">Email</p>
-                                <p className="font-medium">{user.email}</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-500">Phone</p>
-                                <p className="font-medium">{user.phonenumber}</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <p className="text-red-500">User data not available.</p>
-                    )}
-                </CardContent>
+        <div className="max-w-3xl mx-auto p-6 space-y-6 mt-24 min-h-screen">
+            {/* User Info */}
+            <Card className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    {/* <Avatar>
+                        <AvatarImage src={demoUser.image} />
+                        <AvatarFallback>
+                            {demoUser.firstname[0]}
+                            {demoUser.lastname[0]}
+                        </AvatarFallback>
+                    </Avatar> */}
+                    <div>
+                        <h2 className="text-xl font-semibold">
+                            {profileData?.firstname} {profileData?.lastname}
+                        </h2>
+                        <p className="text-sm text-muted-foreground">@{profileData?.username}</p>
+                        <p className="text-sm">{demoUser.bio}</p>
+                    </div>
+                </div>
+                {demoUser.verified && <Badge variant="outline">Verified</Badge>}
             </Card>
 
-            {/* Interview History */}
-            <h2 className="text-3xl font-semibold text-slate-800 mb-6">📜 Interview History</h2>
-            {/* <div className="space-y-6">
-                {loading ? (
-                    <>
-                        <Skeleton className="h-28 w-full" />
-                        <Skeleton className="h-28 w-full" />
-                    </>
-                ) : sessions.length === 0 ? (
-                    <p className="text-slate-500 text-lg">You haven't attended any interviews yet.</p>
-                ) : (
-                    sessions.map((session) => (
-                        <Card key={session.id} className="shadow-sm border border-slate-200">
-                            <CardContent className="p-6">
-                                <div className="flex justify-between flex-wrap gap-4">
-                                    <div>
-                                        <p className="text-slate-500 text-sm">Session ID</p>
-                                        <p className="font-medium">{session.id}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-slate-500 text-sm">Date</p>
-                                        <p className="font-medium">
-                                            {new Date(session.createdAt).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-slate-500 text-sm">Answered</p>
-                                        <p className="font-medium">{session.answeredCount} / {session.questionsCount}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))
-                )}
-            </div> */}
-        </div>
-    );
-};
+            {/* Stats */}
+            <Card className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                    <p className="text-2xl font-bold">{demoStats.mockCount}</p>
+                    <p className="text-muted-foreground text-sm">Mock Interviews</p>
+                </div>
+                <div>
+                    <p className="text-2xl font-bold">
+                        {Number(profileData?.AverageScore).toFixed(1)}%
+                    </p>
+                    <p className="text-muted-foreground text-sm">Avg Score</p>
+                </div>
+                <div>
+                    <p className="text-2xl font-bold">{profileData?.AnswersLength || 0}</p>
+                    <p className="text-muted-foreground text-sm">Answers Given</p>
+                </div>
+                <div>
+                    <p className="text-2xl font-bold">{demoStats.questionsPosted}</p>
+                    <p className="text-muted-foreground text-sm">Questions Posted</p>
+                </div>
+            </Card>
 
-export default ProfilePage;
+            {/* Tabs */}
+            <Tabs value={tab} onValueChange={setTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="interviews">Mock Interviews</TabsTrigger>
+                    <TabsTrigger value="community">Community</TabsTrigger>
+                    <TabsTrigger value="saved">Saved</TabsTrigger>
+                </TabsList>
+
+                {/* Interview Tab */}
+                <TabsContent value="interviews">
+                    {demoInterviews.map((int) => (
+                        <Card key={int.id} className="p-4 my-2">
+                            <h3 className="font-semibold">{int.type} Interview</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Date: {formatDate(int.date)}
+                            </p>
+                            <p className="text-sm">Score: {int.score.toFixed(1)}%</p>
+                            <Link
+                                href={`/interview/${int.id}`}
+                                className="text-blue-500 text-sm underline"
+                            >
+                                View Feedback
+                            </Link>
+                        </Card>
+                    ))}
+                </TabsContent>
+
+                {/* Community Tab */}
+                <TabsContent value="community">
+                    {demoPosts.map((post) => (
+                        <Card key={post.id} className="p-4 my-2">
+                            <h3 className="font-semibold">{post.title}</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Posted on: {formatDate(post.date)}
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {post.tags.map((tag) => (
+                                    <Badge key={tag} variant="secondary">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                            <p className="text-sm mt-2">❤️ {post.likes} likes</p>
+                        </Card>
+                    ))}
+                </TabsContent>
+
+                {/* Saved Tab */}
+                <TabsContent value="saved">
+                    <p className="text-muted-foreground">No saved posts yet.</p>
+                </TabsContent>
+            </Tabs>
+        </div>
+    )
+}

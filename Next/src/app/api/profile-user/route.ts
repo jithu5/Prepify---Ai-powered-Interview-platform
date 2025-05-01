@@ -24,14 +24,21 @@ export async function GET() {
                 lastname: true,
                 email: true,
                 phonenumber: true,
-                username: true
+                username: true,
+                is_account_verified: true,
+                posts: true,
+                Answer:true,
+                interviewSessions:true
             }
         })
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
+        console.log(user)
 
-        return NextResponse.json({ success: true, message: "User profile fetched successfully", user }, { status: 200 })
+        const transformedUser = {...user,Answerlength:user.Answer?.length || 0,AverageScore:user.interviewSessions.reduce((acc,curr)=>acc + (curr?.avg_score || 0),0)}
+
+        return NextResponse.json({ success: true, message: "User profile fetched successfully", user:transformedUser }, { status: 200 })
     } catch (error) {
         console.error("Error fetching user profile:", error);
         return NextResponse.json({ error: "Failed to fetch user profile" }, { status: 500 });

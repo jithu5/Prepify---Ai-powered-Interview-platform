@@ -51,7 +51,6 @@ function InterviewHistoryPage() {
     }
     fetchInterviews()
   }, [])
-
   return (
     <main className="min-h-screen w-full px-4 md:px-24 py-10 mt-20">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Interview History</h1>
@@ -60,7 +59,7 @@ function InterviewHistoryPage() {
       {isError && <p className="text-red-500">{errorMessage}</p>}
 
       <div className="flex flex-col gap-6">
-        {interviews.map((interview) => (
+        {interviews && interviews.length>0 && interviews.map((interview) => (
           <div
             key={interview.id}
             className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all"
@@ -74,9 +73,10 @@ function InterviewHistoryPage() {
                 <p className="text-gray-600 text-sm">Type: {interview.type}</p>
               </div>
               <div className="mt-4 sm:mt-0 text-sm text-gray-500 flex items-center justify-center flex-col">
-                {/* <p><strong>Score:</strong> <span className="text-green-600 font-medium">{interview.score}</span></p> */}
-                <ScoreChart score={Number(interview.score.toFixed(1))} />
-                <h1 className='text-center text-xl font-semibold'>{interview.score.toFixed(1)}%</h1>
+                <ScoreChart score={Number(Number(interview?.score ?? 0).toFixed(1))} />
+                <h1 className='text-center text-xl font-semibold'>
+                  {Number(interview?.score ?? 0).toFixed(1)}%
+                </h1>
               </div>
             </div>
             <div className="text-sm text-gray-500">

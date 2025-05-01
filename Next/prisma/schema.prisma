@@ -32,7 +32,7 @@ model User {
   technologies               Technology[] // Relation One-Many to Technology model
   posts                      Post[] // Relation One-Many to Post model
   likes                      Like[] // Relation One-Many to Like model
-  Answer                    Answer[] // Relation One-Many to Answer model
+  Answer                     Answer[] // Relation One-Many to Answer model
 }
 
 model Interview_session {
@@ -45,6 +45,7 @@ model Interview_session {
   position_type String
   level         String
   max_count     Int          @default(10)
+  avg_score     Int?
   questions     Question[] // Relation one-Many to Question model
   technologies  Technology[] // Relation One-Many to Technology model
   Response      Response[] // Relation One-Many to Response model
@@ -94,7 +95,7 @@ model Post {
   answer     String    @db.VarChar(500)
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  Answers   Answer[] // Relation One-Many to Answer model
+  Answers    Answer[] // Relation One-Many to Answer model
   likes      Like[] // Relation One-Many to Like model
   post_tags  PostTag[] // Relation One-Many to PostTag model
 }
@@ -105,7 +106,7 @@ model Answer {
   post_id    String
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id    String
-  answer    String
+  answer     String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -119,7 +120,7 @@ model Like {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
- @@unique([user_id, post_id], name: "userPost") // ✅ Composite unique constraint
+  @@unique([user_id, post_id], name: "userPost") // ✅ Composite unique constraint
 }
 
 model Tag {
