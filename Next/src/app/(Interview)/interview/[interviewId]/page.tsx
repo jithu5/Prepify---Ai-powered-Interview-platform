@@ -36,7 +36,6 @@ function InterviewSectionPage() {
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
     const [sessions, setSessions] = useState<Session[]>([]);
-    const [answer, setAnswer] = useState<string>('');
     const [questionId, setQuestionId] = useState<string>('');
     const [isQuestionLoading, setIsQuestionLoading] = useState<boolean>(false);
     const [isFeedbackLoading, setIsFeedbackLoading] = useState<boolean>(false);
@@ -119,7 +118,6 @@ function InterviewSectionPage() {
         } catch (err: any) {
             toast.error(err?.response?.data?.message || "Error submitting answer");
         } finally {
-            setAnswer('');
             setIsFeedbackLoading(false);
             setIsSubmitting(false);
         }
@@ -194,8 +192,8 @@ function InterviewSectionPage() {
                         <Button>Next Question</Button>
                     </div>
                 </div>
-                    <ChatInput answer={answer} onChange={(e)=>setAnswer(e.target.value)} onSubmit={()=>handleAnswerSubmit(answer,questionId)} isSubmitting={isSubmitting}/>
-               
+                <ChatInput questionId={questionId} onSubmit={handleAnswerSubmit} isSubmitting={isSubmitting} />
+
             </div>
         </>
     );

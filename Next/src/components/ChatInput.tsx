@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import axios from 'axios';
 
 type Props = {
-    answer: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
+    onSubmit: (answer:string,questionId:string) => void;
     isSubmitting?: boolean;
+    questionId:string
 };
 
-export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: Props) {
+export default function ChatInput({ onSubmit, isSubmitting, questionId }: Props) {
         const [isRecording, setIsRecording] = useState(false);
         const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
         const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -64,9 +63,6 @@ export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: P
         e.preventDefault();
         
         if (audioBlob) {
-            // Create a URL for the audioBlob and play it
-            const audio = new Audio(URL.createObjectURL(audioBlob));
-            audio.play();
             try {
                 const file = new File([audioBlob], "audio.wav", { type: audioBlob.type });
                 const formData = new FormData();
@@ -79,6 +75,7 @@ export default function ChatInput({ answer, onChange, onSubmit,isSubmitting }: P
                     withCredentials: true
                 });
                 console.log(data);
+                await onSubmit(data.transcription,questionId)
             } catch (error) {
                 console.error(error);
             }
