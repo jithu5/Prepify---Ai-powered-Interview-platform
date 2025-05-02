@@ -1,9 +1,6 @@
 # PrepIfy - AI-Powered Interview Preparation Platform
 
-PrepIfy is an intelligent interview preparation platform that leverages AI to provide personalized interview practice sessions. The platform helps candidates prepare for both technical and behavioral interviews by generating relevant questions, providing real-time feedback, and tracking progress. Also provides a community section where users can share their interview experience with others.
-And will be Dockerized in the near future.
-
-The application uses Next.js for the frontend, PostgreSQL for data storage, and integrates with Google's Generative AI for question generation and answer evaluation. It features a secure authentication system with Next-Auth, real-time feedback mechanisms, and a user-friendly interface for managing interview sessions.
+PrepIfy is an intelligent interview preparation platform that leverages artificial intelligence to deliver personalized and realistic interview practice sessions. Designed for both technical and behavioral interview preparation, PrepIfy provides dynamically generated questions, real-time feedback, progress tracking, and a community-driven experience.
 
 ## 🚧 Under Development
 
@@ -13,6 +10,30 @@ I'm actively working on building and testing features, and things may break or c
 Feel free to explore the code, give feedback, or contribute, but please note that this is **not yet stable**.
 
 Stay tuned for updates!
+
+## 🚀 Features
+
+* 🎯 Personalized Interview Sessions
+Generates tailored questions based on position type, interview level, and category (technical/behavioral) using Google's Generative AI.
+
+* 🗣️ Voice Input + Whisper Transcription
+Users can answer using voice. Responses are transcribed into text using OpenAI's Whisper LLM model and analyzed for accuracy and relevance.
+
+* 💬 Real-Time Feedback
+Instantly evaluates your answers and gives structured feedback to help you improve.
+
+* 📊 Progress Tracking
+Tracks session history and performance trends to help you measure your growth over time.
+
+🧑‍🤝‍🧑 Community Section
+Share and explore real interview experiences from others to gain insights and tips.
+and can share your answers to others post.
+
+* 🔒 Secure Authentication
+Integrated NextAuth for robust and secure user authentication.
+
+* 🐳 Fully Dockerized
+Easily deployable with Docker — both the Next.js frontend and FastAPI/Whisper backend are containerized.
 
 ## Repository
 
@@ -38,10 +59,15 @@ Stay tuned for updates!
 
 ### Prerequisites
 
-- Node.js 16.x or later
-- PostgreSQL 12.x or later
-- npm or yarn package manager
-- Google Cloud API key (for AI features)
+* Node.js 16.x or later.
+* PostgreSQL 12.x or later.
+* npm or yarn package manager.
+* Google Cloud API key (for AI features)
+* Python 3.11x or later
+
+#### Or simply use with Docker
+
+  Docker 4.40 or any other
 
 ### Installation
 

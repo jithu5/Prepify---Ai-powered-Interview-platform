@@ -3,13 +3,11 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import Link from "next/link"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { toast } from "sonner"
+import ProfileTabs from "@/components/ProfileTabs"
 
 
 interface User {
@@ -39,44 +37,6 @@ const demoStats = {
     questionsPosted: 17,
 }
 
-const demoInterviews = [
-    {
-        id: "int1",
-        type: "Backend",
-        date: "2025-04-20",
-        score: 85.2,
-    },
-    {
-        id: "int2",
-        type: "Frontend",
-        date: "2025-03-10",
-        score: 79.5,
-    },
-]
-
-const demoPosts = [
-    {
-        id: "post1",
-        title: "How to scale a Node.js app?",
-        tags: ["Node.js", "Backend", "Scalability"],
-        date: "2025-04-10",
-        likes: 5,
-    },
-    {
-        id: "post2",
-        title: "Tips for better technical interviews",
-        tags: ["Interview", "Tips"],
-        date: "2025-04-05",
-        likes: 10,
-    },
-]
-
-const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    })
 
 export default function ProfilePage() {
     const [tab, setTab] = useState<string>("interviews")
@@ -160,58 +120,7 @@ export default function ProfilePage() {
                 </div>
             </Card>
 
-            {/* Tabs */}
-            <Tabs value={tab} onValueChange={setTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="interviews">Mock Interviews</TabsTrigger>
-                    <TabsTrigger value="community">Community</TabsTrigger>
-                    <TabsTrigger value="saved">Saved</TabsTrigger>
-                </TabsList>
-
-                {/* Interview Tab */}
-                <TabsContent value="interviews">
-                    {demoInterviews.map((int) => (
-                        <Card key={int.id} className="p-4 my-2">
-                            <h3 className="font-semibold">{int.type} Interview</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Date: {formatDate(int.date)}
-                            </p>
-                            <p className="text-sm">Score: {int.score.toFixed(1)}%</p>
-                            <Link
-                                href={`/interview/${int.id}`}
-                                className="text-blue-500 text-sm underline"
-                            >
-                                View Feedback
-                            </Link>
-                        </Card>
-                    ))}
-                </TabsContent>
-
-                {/* Community Tab */}
-                <TabsContent value="community">
-                    {demoPosts.map((post) => (
-                        <Card key={post.id} className="p-4 my-2">
-                            <h3 className="font-semibold">{post.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Posted on: {formatDate(post.date)}
-                            </p>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {post.tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary">
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                            <p className="text-sm mt-2">❤️ {post.likes} likes</p>
-                        </Card>
-                    ))}
-                </TabsContent>
-
-                {/* Saved Tab */}
-                <TabsContent value="saved">
-                    <p className="text-muted-foreground">No saved posts yet.</p>
-                </TabsContent>
-            </Tabs>
+            <ProfileTabs />
         </div>
     )
 }

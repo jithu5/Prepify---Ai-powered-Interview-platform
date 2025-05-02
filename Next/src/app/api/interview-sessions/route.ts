@@ -23,6 +23,9 @@ export async function GET(req: NextRequest) {
             select: {
                 is_account_verified: true,
                 interviewSessions: {
+                    orderBy:{
+                        start_time:"desc"    
+                    },
                     include: {
                         Response: {
                             select: {
@@ -30,8 +33,9 @@ export async function GET(req: NextRequest) {
                             }
                         }
                     }
-                }
+                },
             },
+            
         });
 
         if (!user) {
