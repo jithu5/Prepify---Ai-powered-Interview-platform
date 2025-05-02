@@ -25,7 +25,7 @@ Instantly evaluates your answers and gives structured feedback to help you impro
 * 📊 Progress Tracking
 Tracks session history and performance trends to help you measure your growth over time.
 
-🧑‍🤝‍🧑 Community Section
+* 🧑‍🤝‍🧑 Community Section
 Share and explore real interview experiences from others to gain insights and tips.
 and can share your answers to others post.
 
