@@ -22,8 +22,8 @@ app.add_middleware(
 )
 
 # Load model and processor
-processor = WhisperProcessor.from_pretrained("openai/whisper-large.en")
-model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-large.en")
+processor = WhisperProcessor.from_pretrained("openai/whisper-large")
+model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-large")
 model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(language="english", task="transcribe")
 
 # Move to GPU if available
@@ -42,7 +42,7 @@ def transcribe_audio(file_path: str) -> dict:
     # Load and preprocess audio
     audio = AudioSegment.from_file(file_path)
     audio = audio.set_channels(1).set_frame_rate(16000)
-    audio = AudioSegment.from_file(file_path)
+
 
 # Convert to numpy array (float32 in range [-1, 1])
 
