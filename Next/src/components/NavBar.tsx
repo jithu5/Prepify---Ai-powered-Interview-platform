@@ -64,6 +64,7 @@ function NavBar() {
                 }}>PREPIFY</h1>
             </Link>
             <div className="flex items-center gap-16">
+                <Link href='/community' className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>pricing</Link>
                 <Link href='/community' className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>community</Link>
                 {
                     session?.user ? (
@@ -126,7 +127,7 @@ function NavBar() {
                     )
                 }
             </div>
-            {modalOpen && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email!} />}
+            {modalOpen && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email!} type="verify" />}
         </nav>
     )
 }

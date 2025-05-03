@@ -110,9 +110,6 @@ export async function GET(req: NextRequest) {
             tags:post.post_tags.map(tag=>tag.tag.tag_name)
         }));
 
-        if (posts.length === 0) {
-            return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
-        }
         return NextResponse.json({ message: "Posts fetched successfully", success: true, data: transformedPosts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {

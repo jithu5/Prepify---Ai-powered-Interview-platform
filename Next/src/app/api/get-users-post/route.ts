@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
             answers: post.Answers.map(answer => answer.user_id),
             tags: post.post_tags.map(tag => tag.tag.tag_name)
         }));
-        console.log(transformedPosts)
+        
         return NextResponse.json({ message: "Posts fetched successfully", success: true, data: transformedPosts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {

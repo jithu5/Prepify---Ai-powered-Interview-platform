@@ -70,7 +70,6 @@ export async function GET(req: NextRequest) {
                 }
             }
         })
-        console.log(userAnswers)
         return NextResponse.json({ message: "Posts fetched successfully", success: true, data: userAnswers, totalAnswers: totalAnswers.length }, { status: 200 });
 
     } catch (error) {

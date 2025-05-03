@@ -5,7 +5,6 @@ import { Card } from './ui/card';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Loader2 } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination';
@@ -97,7 +96,7 @@ function AnswersTab({ setProfileData }: ProfileProps) {
             {
                 answers.length === 0 && (
                     <div className='flex justify-center items-center'>
-                        <p>no posts</p>
+                        <p>No Answers posted</p>
                     </div>
                 )
             }
