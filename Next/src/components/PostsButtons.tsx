@@ -15,7 +15,6 @@ interface Props{
 
 function PostsButtons({ post, setPosts }:Props) {
     const {data:session}= useSession()
-    const router = useRouter()
     const addLike = async (postId: string) => {
         if (!session?.user || !session?.user.id) {
             toast.error("Unauthorized")
@@ -71,7 +70,7 @@ function PostsButtons({ post, setPosts }:Props) {
                   {post.answers.length}
                 comments
               </div>
-              <Link className='cursor-pointer text-stone-800' href={`/community/${post.id}`}>Read</Link>
+
               <button
                   className='flex items-center gap-1'
               >

@@ -14,6 +14,7 @@ import {
 import PostsButtons from './PostsButtons';
 import { formatRelativeTime } from '@/lib/FormateRelativeTime';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 
 export interface Post {
     id: string;
@@ -36,7 +37,7 @@ function CommunityPosts() {
     const [limit, setLimit] = useState<number>(25);
     const [totalPosts, setTotalPosts] = useState<number>(0);
     const [loadingPosts, setLoadingPosts] = useState<boolean>(false)
-
+    const router=  useRouter()
 
     const fetchPosts = useCallback(async () => {
         setLoadingPosts(true)
@@ -72,7 +73,7 @@ function CommunityPosts() {
         fetchPosts();
     }, [page]); // ✅ No cleanup👈 re-fetch when page changes
 
-    const onSubmit = async (formData: {tags:string}) => {
+    const onSearch = async (formData: {tags:string}) => {
         console.log(formData)
         setLoadingPosts(true)
         try {
@@ -112,7 +113,7 @@ function CommunityPosts() {
 
                 {/* Sidebar */}
                 <aside className="sticky top-36 left-0 h-[calc(100vh-144px)] w-64 bg-white border-r border-stone-200 shadow-sm p-6 flex flex-col gap-6 rounded-tr-2xl">
-                    <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
+                    <form className='w-full' onSubmit={handleSubmit(onSearch)}>
 
                         <h2 className="text-xl font-semibold text-stone-800" style={{ fontFamily: 'Titillium Web' }}>
                             Menu
@@ -159,7 +160,7 @@ function CommunityPosts() {
                     }
                     {/* Posts */}
                     {!loadingPosts && posts.length > 0 && posts.map(post => (
-                        <div key={post.id} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
+                        <div key={post.id} onClick={()=>router.push(`/community/${post.id}`)} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
                             {/* Username */}
                             <div className="text-sm text-stone-500 flex items-center px-2 justify-between" style={{ fontFamily: 'Quicksand Variable' }}>
                                 <p>

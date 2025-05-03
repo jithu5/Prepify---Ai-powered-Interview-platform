@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
     try {
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { is_account_verified: true }
+            select: { is_account_verified: true, id: true }
         });
 
         if (!user) {
@@ -36,7 +36,6 @@ export async function GET(req: NextRequest) {
         console.log(searchParams)
         const pageParam = searchParams.get('page');
         const limitParam = searchParams.get('limit');
-        const tagParams = searchParams.get('tags')
 
         if (!pageParam || !limitParam) {
             return NextResponse.json({
@@ -56,18 +55,9 @@ export async function GET(req: NextRequest) {
         const skip = (page - 1) * limit;
 
         const posts = await prisma.post.findMany({
-            where: tagParams ? {
-                post_tags: {
-                    some: {
-                        tag: {
-                            tag_name: {
-                                contains: tagParams,
-                                mode: "insensitive"
-                            }
-                        }
-                    }
-                }
-            } : undefined,
+            where: {
+                user_id: user.id
+            },
             skip,
             take: limit,
             orderBy: {
@@ -82,11 +72,6 @@ export async function GET(req: NextRequest) {
                 Answers: {
                     select: {
                         user_id: true
-                    }
-                },
-                user: {
-                    select: {
-                        firstname: true
                     }
                 },
                 post_tags: {
@@ -106,17 +91,15 @@ export async function GET(req: NextRequest) {
             ...post,
             likes: post.likes.map(like => like.user_id),
             answers: post.Answers.map(answer => answer.user_id),
-            username:post.user.firstname,
-            tags:post.post_tags.map(tag=>tag.tag.tag_name)
+            tags: post.post_tags.map(tag => tag.tag.tag_name)
         }));
-
-        if (posts.length === 0) {
-            return NextResponse.json({ message: "No posts found", success: false }, { status: 404 });
-        }
+        console.log(transformedPosts)
         return NextResponse.json({ message: "Posts fetched successfully", success: true, data: transformedPosts, totalPosts: totalPosts.length }, { status: 200 });
 
     } catch (error) {
-        console.error("Error fetching posts:", error);
-        return NextResponse.json({ message: "Server error in fetching posts", success: false }, { status: 500 });
+        console.log("Server Error in getting users posts", error)
+        return NextResponse.json({ message: "Server Error in getting users post", success: false }, {
+            status: 500
+        })
     }
 }
