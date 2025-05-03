@@ -31,6 +31,8 @@ function PostTab() {
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(25);
     const [totalPosts, setTotalPosts] = useState<number>(0);
+    const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+
     const router = useRouter()
 
     useEffect(() => {
@@ -61,34 +63,78 @@ function PostTab() {
 
         fetchUsersPost()
     }, [page, limit])
-console.log(posts)
+
+    const deletePost = async (postId: string) => {
+        setDeletingPostId(postId); // show progress
+        try {
+            const { data } = await axios.delete(`/api/delete-post/${postId}`, {
+                headers: {
+                    'Content-Type': "application/json",
+                },
+                withCredentials: true
+            })
+            if (data.success) {
+                toast.success(data.message)
+                setPosts(prevPost => {
+                    return prevPost.filter(post => post.id !== postId)
+                })
+                return
+            }
+            toast.error(data.message)
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || "Server Error in deleting post"
+            toast.error(errMsg)
+        } finally {
+            setDeletingPostId(null);
+        }
+    }
+    console.log(posts)
     const totalPages = Math.ceil(totalPosts / limit);
 
     return (
         <>
-        {
-            posts.length === 0 && (
-                <div className='flex justify-center items-center'>
-                    <Loader2 className='animate-spin'/>
-                </div>
-            )
-        }
-            {posts && posts.length>0 && posts.map((post) => (
-                <Card onClick={() => router.push(`/community/${post.id}`)} key={post.id} className="p-4 my-2 cursor-pointer">
-                    <h3 className="font-semibold">{post.question}</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Posted on: {formatDate(new Date(post.created_at).toISOString())}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {post.tags.map((tag) => (
-                            <Badge key={tag} variant="secondary">
-                                {tag}
-                            </Badge>
-                        ))}
+            {
+                posts.length === 0 && (
+                    <div className='flex justify-center items-center'>
+                        <Loader2 className='animate-spin' />
                     </div>
-                    <p className="text-sm mt-2">❤️ {post.likes.length || 0} likes</p>
-                    <p className="text-sm mt-2 flex items-center gap-1">   <MessageCircleMore />{post.answers.length || 0} answers</p>
+                )
+            }
+            {posts && posts.length > 0 && posts.map((post) => (
+                <Card key={post.id} className="p-4 my-2 relative group">
+                    <div onClick={() => router.push(`/community/${post.id}`)} className="cursor-pointer">
+                        <h3 className="font-semibold">{post.question}</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Posted on: {formatDate(new Date(post.created_at).toISOString())}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {post.tags.map((tag) => (
+                                <Badge key={tag} variant="secondary">
+                                    {tag}
+                                </Badge>
+                            ))}
+                        </div>
+                        <p className="text-sm mt-2">❤️ {post.likes.length || 0} likes</p>
+                        <p className="text-sm mt-2 flex items-center gap-1"><MessageCircleMore />{post.answers.length || 0} answers</p>
+                    </div>
+
+                    {/* Delete Button */}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            deletePost(post.id);
+                        }}
+                        className="absolute top-3 right-2.5 text-sm text-red-500 hover:underline disabled:opacity-50"
+                        disabled={deletingPostId === post.id}
+                    >
+                        {deletingPostId === post.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            "Delete"
+                        )}
+                    </button>
                 </Card>
+
             ))}
             {/* Pagination */}
             <Pagination>
