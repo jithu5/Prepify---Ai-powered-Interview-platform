@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import { Loader2, SendHorizontal } from "lucide-react";
+import { Loader2, SendHorizontal, ThumbsUp } from "lucide-react";
 import { formatRelativeTime } from "@/lib/FormateRelativeTime";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { randomUUID } from "crypto";
+import { useSession } from "next-auth/react";
 
 interface Post {
     id: string;
@@ -30,6 +30,8 @@ function PostPage() {
     const { postId } = useParams()
     const [answer, setAnswer] = useState<string>("")
     const [postingAnswer, setPostingAnswer] = useState<boolean>(false)
+    const [hasLiked, setHasLiked] = useState<boolean>(false)
+    const { data: session } = useSession()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,26 +42,51 @@ function PostPage() {
         fetchData();
     }, []);
 
-    const hasLiked = post?.likes.includes(userId);
+    useEffect(() => {
+        if (post && userId) {
+            setHasLiked(post.likes.includes(userId));
+        }
+    }, [post, userId]);
 
-    const handleLikeToggle = async () => {
-        if (!post) return;
-
-        const res = await axios.post("/api/posts/like", {
-            postId: post.id,
-            userId,
+    const addLike = async (postId: string) => {
+        if (!session?.user || !session?.user.id) {
+            toast.error("Unauthorized")
+            return
+        }
+        setPost((prevPost) => {
+            if (prevPost === null) return null;
+            return { ...prevPost, likes: prevPost.likes.includes(session.user.id) ? prevPost.likes.filter(like => like !== session.user.id) : [...prevPost.likes, session.user.id] };
         });
+        // setPost((prevPost) => {
+        //     if (prevPost === null) return null;
+        //     const hasLiked = prevPost.likes.includes(session.user.id);
+        //     return {
+        //         ...prevPost,
+        //         likes: hasLiked
+        //             ? prevPost.likes.filter(like => like !== session.user.id) // remove like
+        //             : [...prevPost.likes, session.user.id] // add like
+        //     };
+        // });
+        try {
+            const { data } = await axios.post(`/api/like-post`, { postId }, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+            });
 
-        setPost(prev =>
-            prev
-                ? {
-                    ...prev,
-                    likes: res.data.likes,
-                }
-                : null
-        );
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            toast.success(data.message)
+        } catch (error) {
+            toast.error("Failed to like post");
+            // Optionally revert
+            setPost((prevPost) => {
+                if (!prevPost) return null;
+                return { ...prevPost, likes: prevPost.likes.includes(session.user.id) ? prevPost.likes.filter(like => like !== session.user.id) : [...prevPost.likes, session.user.id] };
+            })
+
+        }
     };
-
     const addAnswer = async (e: React.FormEvent) => {
         e.preventDefault()
         if (answer.trim() === "") {
@@ -100,7 +127,7 @@ function PostPage() {
             <Loader2 className="w-24 h-24 animate-spin" />
         </div>
     );
-    console.log(post)
+
     return (
         <div className="max-w-7xl mx-auto mt-12 md:mt-24 px-4 sm:px-6 lg:px-8 py-6 md:py-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 font-sans relative">
 
@@ -123,7 +150,7 @@ function PostPage() {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                    {["⭐ Save 45", "👍 I was asked this", "🔗 Share", "🚩 Flag"].map((text) => (
+                    {["👍 I was asked this", "🔗 Share"].map((text) => (
                         <button
                             key={text}
                             className="px-2 py-1 sm:px-3 sm:py-1 rounded-md border bg-white text-xs sm:text-sm hover:bg-gray-50 shadow-sm"
@@ -131,6 +158,16 @@ function PostPage() {
                             {text}
                         </button>
                     ))}
+                    <button
+                        className='flex items-center gap-1'
+                    >
+                        <ThumbsUp
+                            onClick={() => addLike(post.id)}
+                            className={`cursor-pointer transition ${hasLiked ? 'fill-red-500 text-red-500' : 'text-gray-600'
+                                }`}
+                        />
+                        <span className="text-sm">{post.likes.length} Likes</span>
+                    </button>
                 </div>
 
                 {/* Guidelines */}
@@ -170,7 +207,7 @@ function PostPage() {
                         Answers ({post.Answers?.length || 0})
                     </h2>
                     <div className="flex flex-col w-full items-center gap-3">
-                        {post.Answers && post.Answers.length > 0 && post.Answers.map(ans=>(
+                        {post.Answers && post.Answers.length > 0 && post.Answers.map(ans => (
                             <div key={ans.id} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm w-full">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 sm:gap-3">
@@ -196,7 +233,7 @@ function PostPage() {
                                 </p>
                             </div>
                         ))
-                         
+
                         }
                     </div>
                 </div>

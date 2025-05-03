@@ -8,7 +8,6 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Loader2, MessageCircleMore } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-
 export interface Post {
     id: string;
     question: string;
@@ -19,23 +18,6 @@ export interface Post {
     answers: string[],
     tags: string[]
 }
-
-const demoPosts = [
-    {
-        id: "post1",
-        title: "How to scale a Node.js app?",
-        tags: ["Node.js", "Backend", "Scalability"],
-        date: "2025-04-10",
-        likes: 5,
-    },
-    {
-        id: "post2",
-        title: "Tips for better technical interviews",
-        tags: ["Interview", "Tips"],
-        date: "2025-04-05",
-        likes: 10,
-    },
-]
 
 const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-GB", {

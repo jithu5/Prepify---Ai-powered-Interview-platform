@@ -1,14 +1,11 @@
 // app/profile/page.tsx (or any React component)
-
 "use client"
-
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { toast } from "sonner"
 import ProfileTabs from "@/components/ProfileTabs"
-
 
 interface User {
     firstname: string
@@ -37,9 +34,7 @@ const demoStats = {
     questionsPosted: 17,
 }
 
-
 export default function ProfilePage() {
-    const [tab, setTab] = useState<string>("interviews")
     const [profileData, setProfileData] = useState<User>()
     const [profileLoading, setProfileLoading] = useState<boolean>(false)
 
@@ -95,7 +90,7 @@ export default function ProfilePage() {
                         <p className="text-sm">{demoUser.bio}</p>
                     </div>
                 </div>
-                {demoUser.verified && <Badge variant="outline">Verified</Badge>}
+                {profileData?.is_account_verified && <Badge variant="outline">Verified</Badge>}
             </Card>
 
             {/* Stats */}

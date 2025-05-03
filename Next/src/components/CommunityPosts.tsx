@@ -160,7 +160,7 @@ function CommunityPosts() {
                     }
                     {/* Posts */}
                     {!loadingPosts && posts.length > 0 && posts.map(post => (
-                        <div key={post.id} onClick={()=>router.push(`/community/${post.id}`)} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
+                        <div key={post.id} onClick={()=>router.push(`/community/${post.id}`)} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4 cursor-pointer">
                             {/* Username */}
                             <div className="text-sm text-stone-500 flex items-center px-2 justify-between" style={{ fontFamily: 'Quicksand Variable' }}>
                                 <p>

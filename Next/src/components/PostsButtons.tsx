@@ -1,20 +1,17 @@
 import React from 'react'
-import { Button } from './ui/button'
 import { MessageCircleMore, ThumbsUp } from 'lucide-react'
 import { Post } from './CommunityPosts'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
-interface Props{
-    post:Post,
-    setPosts:React.Dispatch<React.SetStateAction<Post[]>>
+interface Props {
+    post: Post,
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>
 }
 
-function PostsButtons({ post, setPosts }:Props) {
-    const {data:session}= useSession()
+function PostsButtons({ post, setPosts }: Props) {
+    const { data: session } = useSession()
     const addLike = async (postId: string) => {
         if (!session?.user || !session?.user.id) {
             toast.error("Unauthorized")
@@ -61,25 +58,25 @@ function PostsButtons({ post, setPosts }:Props) {
             );
         }
     };
-  return (
-    <>
-          <div className="flex items-center justify-between mt-4">
-            
-              <div className='flex items-center justify-center gap-2'>
-                  <MessageCircleMore />
-                  {post.answers.length}
-                comments
-              </div>
+    return (
+        <>
+            <div className="flex items-center justify-between mt-4">
 
-              <button
-                  className='flex items-center gap-1'
-              >
-                  <ThumbsUp onClick={() => addLike(post.id)} className={`transition cursor-pointer ${session?.user?.id && post.likes.includes(session.user.id) ? 'fill-red-500' : ''}`} />
-                  <span className="text-sm">{post.likes.length} Likes</span>
-              </button>
-          </div>
-    </>
-  )
+                <div className='flex items-center justify-center gap-2'>
+                    <MessageCircleMore />
+                    {post.answers.length}
+                    comments
+                </div>
+
+                <button
+                    className='flex items-center gap-1'
+                >
+                    <ThumbsUp onClick={() => addLike(post.id)} className={`transition cursor-pointer ${session?.user?.id && post.likes.includes(session.user.id) ? 'fill-red-500' : ''}`} />
+                    <span className="text-sm">{post.likes.length} Likes</span>
+                </button>
+            </div>
+        </>
+    )
 }
 
 export default PostsButtons
