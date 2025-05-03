@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { format } from 'date-fns'
 import ScoreChart from './ScoreChart'
 import axios from 'axios'
+import { ProfileProps } from './ProfileTabs'
 
 interface Interview {
     end_time: Date
@@ -17,7 +18,7 @@ interface Interview {
     score: number
 }
 
-function InterviewTab() {
+function InterviewTab({ setProfileData }: ProfileProps) {
     const [interviews, setInterviews] = useState<Interview[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [isError, setIsError] = useState<boolean>(false)
@@ -64,6 +65,10 @@ function InterviewTab() {
                 setInterviews(prevInterviews =>
                     prevInterviews.filter(interview => interview.id !== interviewId)
                 )
+                setProfileData(prevdata => {
+                    if (!prevdata) return prevdata
+                    return { ...prevdata, mockInterviews: prevdata.mockInterviews - 1 }
+                })
                 return
             }
             toast.error(data.message)

@@ -1,24 +1,24 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { Card } from './ui/card'
-import { Badge } from './ui/badge'
-import axios from 'axios'
-import { toast } from 'sonner'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination'
-import { Loader2, MessageCircleMore } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { Button } from './ui/button'
-import { User } from '@/app/(Home)/profile/page'
+import { ProfileProps } from './ProfileTabs'
+import { Card } from './ui/card';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Loader2 } from 'lucide-react';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination';
 
-export interface Post {
+interface IPost {
+    question: string
+    id: string
+}
+interface Answer {
     id: string;
-    question: string;
     answer: string;
     created_at: Date;
-    updated_at?: Date;
-    likes: string[]
-    answers: string[],
-    tags: string[]
+    post: IPost
 }
 
 const formatDate = (dateStr: string) =>
@@ -28,36 +28,28 @@ const formatDate = (dateStr: string) =>
         year: "numeric",
     })
 
-interface Props {
-    setProfileData: React.Dispatch<React.SetStateAction<User | undefined>>
-}
 
-function PostTab({ setProfileData }: Props) {
-    const [posts, setPosts] = useState<Post[]>([])
+function AnswersTab({ setProfileData }: ProfileProps) {
+    const [answers, setAnswers] = useState<Answer[]>([])
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(25);
-    const [totalPosts, setTotalPosts] = useState<number>(0);
-    const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+    const [totalAnswers, setTotalAnswers] = useState<number>(0);
+    const [deletingAnswerId, setDeletingAnswerId] = useState<string | null>(null);
 
     const router = useRouter()
 
     useEffect(() => {
-        const fetchUsersPost = async () => {
+        const fetchUsersAnswers = async () => {
             try {
-                const { data } = await axios.get(`/api/get-users-post?page=${page}&limit=${limit}`, {
+                const { data } = await axios.get(`/api/get-users-answer?page=${page}&limit=${limit}`, {
                     withCredentials: true,
                     headers: { 'Content-Type': 'application/json' }
                 })
                 if (data.success) {
                     toast.success(data.message);
-                    setPosts(
-                        data.data.map((post: Post) => ({
-                            ...post,
-                            likes: post.likes || [],
-                        }))
-                    );
+                    setAnswers(data.data);
 
-                    setTotalPosts(data.totalPosts);  // 👈 Save total number of posts
+                    setTotalAnswers(data.totalAnswers || 0);  // 👈 Save total number of posts
                     return;
                 }
                 toast.error(data.message);
@@ -67,13 +59,14 @@ function PostTab({ setProfileData }: Props) {
             }
         }
 
-        fetchUsersPost()
+        fetchUsersAnswers()
     }, [page, limit])
+    console.log(answers)
 
-    const deletePost = async (postId: string) => {
-        setDeletingPostId(postId); // show progress
+    const deletePost = async (answerId: string) => {
+        setDeletingAnswerId(answerId); // show progress
         try {
-            const { data } = await axios.delete(`/api/delete-post/${postId}`, {
+            const { data } = await axios.delete(`/api/delete-answer/${answerId}`, {
                 headers: {
                     'Content-Type': "application/json",
                 },
@@ -81,12 +74,12 @@ function PostTab({ setProfileData }: Props) {
             })
             if (data.success) {
                 toast.success(data.message)
-                setPosts(prevPost => {
-                    return prevPost.filter(post => post.id !== postId)
+                setAnswers(prevAnswer => {
+                    return prevAnswer.filter(answer => answer.id !== answerId)
                 })
-                setProfileData((prevData)=>{
+                setProfileData((prevData) => {
                     if (!prevData) return prevData;
-                    return {...prevData, questionLength: prevData.questionLength - 1}
+                    return { ...prevData, Answerlength: prevData.Answerlength - 1 }
                 })
                 return
             }
@@ -95,48 +88,40 @@ function PostTab({ setProfileData }: Props) {
             const errMsg = error?.response?.data?.message || "Server Error in deleting post"
             toast.error(errMsg)
         } finally {
-            setDeletingPostId(null);
+            setDeletingAnswerId(null);
         }
     }
-    const totalPages = Math.ceil(totalPosts / limit);
-
+    const totalPages = Math.ceil(totalAnswers / limit);
     return (
         <>
             {
-                posts.length === 0 && (
+                answers.length === 0 && (
                     <div className='flex justify-center items-center'>
                         <p>no posts</p>
                     </div>
                 )
             }
-            {posts && posts.length > 0 && posts.map((post) => (
-                <Card key={post.id} className="p-4 my-2 relative group">
-                    <div onClick={() => router.push(`/community/${post.id}`)} className="cursor-pointer">
-                        <h3 className="font-semibold">{post.question}</h3>
+            {answers && answers.length > 0 && answers.map((answer) => (
+                <Card key={answer.id} onClick={() => router.push(`/community/${answer.post.id}`)} className="p-4 my-2 relative group">
+                    <div className="cursor-pointer">
+                        <h3 className='text-xl font-semibold my-3 mt-5 text-stone-900'>{answer.post.question}</h3>
+                        <p className="font-medium text-sm text-stone-700">{answer.answer}</p>
                         <p className="text-sm text-muted-foreground">
-                            Posted on: {formatDate(new Date(post.created_at).toISOString())}
+                            Posted on: {formatDate(new Date(answer.created_at).toISOString())}
                         </p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {post.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary">
-                                    {tag}
-                                </Badge>
-                            ))}
-                        </div>
-                        <p className="text-sm mt-2">❤️ {post.likes.length || 0} likes</p>
-                        <p className="text-sm mt-2 flex items-center gap-1"><MessageCircleMore />{post.answers.length || 0} answers</p>
+
                     </div>
 
                     {/* Delete Button */}
                     <Button variant={'link'}
                         onClick={(e) => {
                             e.stopPropagation();
-                            deletePost(post.id);
+                            deletePost(answer.id);
                         }}
-                        className="absolute top-3 right-2.5 text-sm text-red-500 hover:underline disabled:opacity-50"
-                        disabled={deletingPostId === post.id}
+                        className="absolute top-0 right-2.5 text-sm text-red-500 hover:underline disabled:opacity-50"
+                        disabled={deletingAnswerId === answer.id}
                     >
-                        {deletingPostId === post.id ? (
+                        {deletingAnswerId === answer.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                             "Delete"
@@ -181,4 +166,4 @@ function PostTab({ setProfileData }: Props) {
     )
 }
 
-export default PostTab
+export default AnswersTab
