@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const bodySchema = z.object({
     email: z.string().email().trim(),
-    otp: z.string().trim()
+    otp: z.number()
 })
 
 export async function POST(req: NextRequest) {

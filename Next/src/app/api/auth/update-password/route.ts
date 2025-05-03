@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 
 const bodySchema = z.object({
     email: z.string().email().trim(),
@@ -23,10 +24,11 @@ export async function POST(req: NextRequest) {
         if (!user) {
             return NextResponse.json({ message: "Email not found", success: false }, { status: 401 })
         }
+        const hashedPassword = await bcrypt.hash(password,10)
         const updateUser = await prisma.user.update({
             where:{email},
             data:{
-                password:password,
+                password:hashedPassword,
             }
         })
       

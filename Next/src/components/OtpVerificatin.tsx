@@ -54,7 +54,9 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
                     router.push('/login')
                     return
                 }
+                // onClose()
                 setOpenPasswordModal(true)
+
             }
             toast.error(data.message)
         } catch (error: any) {

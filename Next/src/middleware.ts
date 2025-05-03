@@ -14,13 +14,13 @@ export async function middleware(request: NextRequest) {
     }
 
     // If the user is authenticated, redirect to the home page
-    if (token && (url.pathname === '/register' || url.pathname === '/login')) {
+    if (token && (url.pathname === '/register' || url.pathname === '/login' || url.pathname === "/forgot-password")) {
         // Redirect to the home page
         return NextResponse.redirect(new URL('/home', request.url))
     }
 
     // If the user is not authenticated, redirect to the login page
-    if (!token && (url.pathname !== '/home' && url.pathname !== '/register' && url.pathname !== '/login')) {
+    if (!token && (url.pathname !== '/home' && url.pathname !== '/register' && url.pathname !== '/login' && url.pathname !== "/forgot-password")) {
         // Redirect to the login page
         return NextResponse.redirect(new URL('/login', request.url))
     }
