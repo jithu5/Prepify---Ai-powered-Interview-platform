@@ -64,14 +64,15 @@ function PostsButtons({ post, setPosts }: Props) {
 
                 <div className='flex items-center justify-center gap-2'>
                     <MessageCircleMore />
-                    {post.answers.length}
-                    comments
+                    <p>{post.answers.length}{" "}
+                        answers</p>
                 </div>
 
                 <button
                     className='flex items-center gap-1'
                 >
-                    <ThumbsUp onClick={() => addLike(post.id)} className={`transition cursor-pointer ${session?.user?.id && post.likes.includes(session.user.id) ? 'fill-red-500' : ''}`} />
+                    <ThumbsUp onClick={(e) =>{e.stopPropagation() 
+                        addLike(post.id)}} className={`transition cursor-pointer ${session?.user?.id && post.likes.includes(session.user.id) ? 'fill-red-500' : ''}`} />
                     <span className="text-sm">{post.likes.length} Likes</span>
                 </button>
             </div>

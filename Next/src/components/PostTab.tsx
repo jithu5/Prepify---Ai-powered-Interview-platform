@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination'
 import { Loader2, MessageCircleMore } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Button } from './ui/button'
 
 export interface Post {
     id: string;
@@ -88,7 +89,6 @@ function PostTab() {
             setDeletingPostId(null);
         }
     }
-    console.log(posts)
     const totalPages = Math.ceil(totalPosts / limit);
 
     return (
@@ -96,7 +96,7 @@ function PostTab() {
             {
                 posts.length === 0 && (
                     <div className='flex justify-center items-center'>
-                        <Loader2 className='animate-spin' />
+                       <p>no posts</p>
                     </div>
                 )
             }
@@ -119,7 +119,7 @@ function PostTab() {
                     </div>
 
                     {/* Delete Button */}
-                    <button
+                    <Button variant={'link'}
                         onClick={(e) => {
                             e.stopPropagation();
                             deletePost(post.id);
@@ -132,7 +132,7 @@ function PostTab() {
                         ) : (
                             "Delete"
                         )}
-                    </button>
+                    </Button>
                 </Card>
 
             ))}

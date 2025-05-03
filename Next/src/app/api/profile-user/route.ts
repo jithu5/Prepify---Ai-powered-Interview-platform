@@ -34,9 +34,9 @@ export async function GET() {
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
-        console.log(user)
 
-        const transformedUser = {...user,Answerlength:user.Answer?.length || 0,AverageScore:user.interviewSessions.reduce((acc,curr)=>acc + (curr?.avg_score || 0),0)}
+        const transformedUser = {...user,Answerlength:user.Answer?.length || 0,AverageScore:user.interviewSessions.reduce((acc,curr)=>acc + (curr.avg_score || 0),0),mockInterviews:user.interviewSessions.length || 0,questionLength:user.posts.length || 0}
+        console.log(transformedUser)
 
         return NextResponse.json({ success: true, message: "User profile fetched successfully", user:transformedUser }, { status: 200 })
     } catch (error) {

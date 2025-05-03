@@ -69,7 +69,10 @@ function NavBar() {
                     session?.user ? (
                         <>
                             <div className="relative" ref={menuRef}>
-                                <div className="cursor-pointer" onClick={() => setMenuOpen(prev => !prev)}>
+                                <div
+                                    className="cursor-pointer"
+                                    onClick={() => setMenuOpen((prev) => !prev)}
+                                >
                                     <Avatar>
                                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                                         <AvatarFallback>{session.user?.email?.[0]?.toUpperCase()}</AvatarFallback>
@@ -77,18 +80,33 @@ function NavBar() {
                                 </div>
 
                                 {menuOpen && (
-                                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50">
+                                    <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-lg z-50 border border-gray-100 animate-fade-in">
                                         <ul className="py-2 text-sm text-gray-700">
                                             <li>
-                                                <Link href={'/interview-history'} className="w-full px-4 py-2 text-left hover:bg-gray-100">Your Interviews</Link>
+                                                <button
+                                                    onClick={() =>{ router.push('/profile')
+                                                        setMenuOpen(false)
+                                                    }}
+                                                    className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors duration-150"
+                                                >
+                                                    Profile
+                                                </button>
                                             </li>
                                             <li>
-                                                <button className="w-full px-4 py-2 text-left hover:bg-gray-100">Settings</button>
+                                                <button className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors duration-150">
+                                                    Settings
+                                                </button>
                                             </li>
                                             {session?.user && !session.user.isAccountVerified && (
                                                 <li>
-                                                    <button disabled={sendingOtp} onClick={handleModalOpen}
-                                                        className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${sendingOtp ? 'text-stone-200' : ''}`}>
+                                                    <button
+                                                        disabled={sendingOtp}
+                                                        onClick={handleModalOpen}
+                                                        className={`w-full px-4 py-2 text-left transition-colors duration-150 ${sendingOtp
+                                                                ? 'text-stone-300 cursor-not-allowed'
+                                                                : 'hover:bg-gray-100'
+                                                            }`}
+                                                    >
                                                         Verify Account
                                                     </button>
                                                 </li>
@@ -97,7 +115,6 @@ function NavBar() {
                                     </div>
                                 )}
                             </div>
-
                             <Button variant="default" className="text-lg px-8 py-4 cursor-pointer" onClick={() => signOut()}>
                                 <LogOut size={20} />
                             </Button>
