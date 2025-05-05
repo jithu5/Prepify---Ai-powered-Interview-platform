@@ -66,19 +66,11 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         if (interviewSession[0].max_count === 0) {
             try {
-                const result = await prisma.response.aggregate({
-                    where: { interview_session_id: id },
-                    _avg: {
-                        score: true,
-                    },
-                });
 
-                const avgScore = result._avg.score ? result._avg.score * 10 : 0;
                 await prisma.interview_session.update({
                     where: { id: id },
                     data: {
                         end_time: new Date(),
-                        avg_score:avgScore
                     }
                 })
                 return NextResponse.json({ message: "You have hit your limit in this session , try for next", success: false }, { status: 400 });
@@ -92,10 +84,21 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         let completion;
         const technologies = interviewSession[0]?.technologies
-        const techStacks = technologies.map((t:any) => t.name).join(', ');
+        const techStacks = technologies.map((t: any) => t.name).join(', ');
 
-        let introduction = `You are an interviewer interviewing ${user.firstname} for ${interviewSession[0].level} ${interviewSession[0].position_type} and this interview is ${interviewSession[0].type} ,don't reply to this prompt.
-        Introduce yourself as an interviewer for first time and make it formal. His known technologies are ${techStacks}.`
+        const introduction = `
+You are a professional technical interviewer conducting a ${interviewSession[0].type} interview with ${user.firstname} for a ${interviewSession[0].level}-level ${interviewSession[0].position_type} role.
+
+- Your tone should be formal yet engaging.
+- Start by introducing yourself politely as an interviewer.
+- Then mention the technologies that the candidate knows: ${techStacks}.
+- After the short introduction, ask a relevant, well-structured technical question based on the candidate's role and skills.
+- Keep your question concise and direct.
+- Do NOT include your name or the company's name.
+- Do NOT provide explanations or answers.
+- Only return the next question in plain text (no JSON or formatting).
+`;
+
         console.log(existingQuestions.length)
 
         if (existingQuestions.length > 0) {
@@ -111,8 +114,25 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                     model: "gemini-2.0-flash",
                     contents: [
                         { role: "user", parts: [{ text: introduction }] },
-                        { role: "user", parts: [{ text: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question, and the feedback has also been provided so no need for that.` }] },
-                      
+                        {
+                            role: "user",
+                            parts: [{
+                                text: `
+You have already asked the question: "${lastQuestion}", and the candidate has answered it.
+
+Continue the interview by:
+- Asking the next relevant technical question based on the candidate’s level (${interviewSession[0].level}), position (${interviewSession[0].position_type}), and skills (${techStacks}).
+- Your tone should be formal but friendly, as if you're conducting a live mock interview.
+- Do NOT repeat previous questions.
+- Ask only one question at a time.
+- Do NOT provide feedback or suggestions.
+- Do NOT explain anything.
+- Return only the next question in plain text (no formatting or labels).
+`
+                            }]
+                        }
+
+
                     ],
                 });
             } catch (error) {
@@ -129,7 +149,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                 completion = await ai.models.generateContent({
                     model: "gemini-2.0-flash",
                     contents: [
-                        { role: "model", parts: [{ text: introduction }] },
+                        { role: "user", parts: [{ text: introduction }] },
                         {
                             role: "model", parts: [{ text: "Start the interview with self intro" }]
                         },
@@ -235,9 +255,22 @@ export async function POST(request: NextRequest, { params }: { params: { session
                 },
                 {
                     role: "model", parts: [{
-                        text: "  You are an AI interviewer.I will provide a candidate's answer, and you will give feedback and a score.Use the STAR method(Situation, Task, Action, Result) to evaluate the answer for mock interview.Only return a plain words as JSON object in the following format: feedback: feedback here based on STAR with suggestions.,score: 1 - 10   Do NOT include any explanation or text outside of this object.Do NOT say anything else.I will be extracting with json.parse, always give in json format as { feedback: string, score: number }"
+                        text: `
+You are an AI interviewer. I will give you a candidate's answer to a technical question.
+
+- Use the STAR method (Situation, Task, Action, Result) to evaluate the answer.
+- Give specific, constructive feedback that helps the candidate improve.
+- Give a score between 1 and 10.
+- Only respond with a JSON object like this:
+{ "feedback": "string", "score": number }
+
+⚠️ Do not include anything else outside the JSON object.
+⚠️ Do not wrap it in triple backticks or markdown.
+⚠️ Do not explain your output.
+`
                     }]
                 },
+
                 {
                     role: "user", parts: [{ text: `${answer}` }]
                 },
@@ -287,6 +320,24 @@ export async function POST(request: NextRequest, { params }: { params: { session
 
         if (!updateQuestion) {
             return NextResponse.json({ message: "Error updating question", success: false }, { status: 400 });
+        }
+        const result = await prisma.response.aggregate({
+            where: { interview_session_id: id },
+            _avg: {
+                score: true,
+            },
+        });
+
+        const avgScore = result._avg.score ? result._avg.score * 10 : 0;
+        const updateScore = await prisma.interview_session.update({
+            where: { id: id },
+            data: {
+                avg_score: avgScore
+            }
+        })
+        if (!updateScore) {
+            return NextResponse.json({ message: "Error updating score", success: false }, { status: 400 });
+
         }
         return NextResponse.json({ message: "Question updated successfully", success: true, data: { feedback: feedback, score: score }, leftQuestion: interviewSession.max_count }, { status: 200 });
 
