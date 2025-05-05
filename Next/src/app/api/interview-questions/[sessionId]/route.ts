@@ -92,9 +92,11 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         let completion;
         const technologies = interviewSession[0]?.technologies
-        const techStacks = technologies.map(t => t.name).join(', ');
+        const techStacks = technologies.map((t:any) => t.name).join(', ');
 
-        let introduction = `You are an interviewer interviewing ${user.firstname} for ${interviewSession[0].level} ${interviewSession[0].position_type} and this interview is ${interviewSession[0].type} a. His known technologies are ${techStacks}. Introduce yourself as Ai only for first time and make it formal , dont respond about it this prompt`
+        let introduction = `You are an interviewer interviewing ${user.firstname} for ${interviewSession[0].level} ${interviewSession[0].position_type} and this interview is ${interviewSession[0].type} ,don't reply to this prompt.
+        Introduce yourself as an interviewer for first time and make it formal. His known technologies are ${techStacks}.`
+        console.log(existingQuestions.length)
 
         if (existingQuestions.length > 0) {
             const lastQuestion = existingQuestions[0].question;
@@ -110,9 +112,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
                     contents: [
                         { role: "user", parts: [{ text: introduction }] },
                         { role: "user", parts: [{ text: `The last question asked was: "${lastQuestion}". Please continue the interview by asking the next relevant question, and the feedback has also been provided so no need for that.` }] },
-                        {
-                            role: "model", parts: [{ text: "Only asks question just the sentence" }]
-                        },
+                      
                     ],
                 });
             } catch (error) {
@@ -231,11 +231,11 @@ export async function POST(request: NextRequest, { params }: { params: { session
             contents: [
                 { role: "model", parts: [{ text: `You are an interviewer interviewing ${user.firstname} for ${interviewSession.level} ${interviewSession.position_type} and this interview is ${interviewSession.type}` }] },
                 {
-                    role: "model", parts: [{ text: `The question you asked was: "${question?.question}". Provide feedback and score the answer on a scale of 1 to 10 as an object.` }]
+                    role: "model", parts: [{ text: `The question you asked was: "${question?.question}". Provide feedback,with plain text in plain text as a real mock interview and score the answer on a scale of 1 to 10 as an object.` }]
                 },
                 {
                     role: "model", parts: [{
-                        text: "  You are an AI interviewer.I will provide a candidate's answer, and you will give feedback and a score.Use the STAR method(Situation, Task, Action, Result) to evaluate the answer.Only return a JSON object in the following format: feedback: feedback here based on STAR with suggestions.,score: 1 - 10   Do NOT include any explanation or text outside of this object.Do NOT say anything else.I will be extracting with json.parse, always give in json format as { feedback: string, score: number }"
+                        text: "  You are an AI interviewer.I will provide a candidate's answer, and you will give feedback and a score.Use the STAR method(Situation, Task, Action, Result) to evaluate the answer for mock interview.Only return a plain words as JSON object in the following format: feedback: feedback here based on STAR with suggestions.,score: 1 - 10   Do NOT include any explanation or text outside of this object.Do NOT say anything else.I will be extracting with json.parse, always give in json format as { feedback: string, score: number }"
                     }]
                 },
                 {

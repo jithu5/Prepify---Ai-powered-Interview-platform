@@ -49,7 +49,6 @@ function PostTab({ setProfileData }: Props) {
                     headers: { 'Content-Type': 'application/json' }
                 })
                 if (data.success) {
-                    toast.success(data.message);
                     setPosts(
                         data.data.map((post: Post) => ({
                             ...post,

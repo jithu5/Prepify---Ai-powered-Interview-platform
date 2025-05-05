@@ -61,7 +61,6 @@ function InterviewTab({ setProfileData }: ProfileProps) {
                 withCredentials: true
             })
             if (data.success) {
-                toast.success(data.message)
                 setInterviews(prevInterviews =>
                     prevInterviews.filter(interview => interview.id !== interviewId)
                 )

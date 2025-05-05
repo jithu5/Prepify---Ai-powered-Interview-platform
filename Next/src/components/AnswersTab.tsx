@@ -45,7 +45,6 @@ function AnswersTab({ setProfileData }: ProfileProps) {
                     headers: { 'Content-Type': 'application/json' }
                 })
                 if (data.success) {
-                    toast.success(data.message);
                     setAnswers(data.data);
 
                     setTotalAnswers(data.totalAnswers || 0);  // 👈 Save total number of posts

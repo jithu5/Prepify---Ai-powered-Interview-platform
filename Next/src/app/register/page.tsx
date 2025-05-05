@@ -166,7 +166,7 @@ export default function RegisterPage() {
             </form>
 
             {
-                isSubmitSuccessful && <OtpVerification open={showOtpModal} onClose={() => setShowOtpModal(false)} email={userEmail} />
+                isSubmitSuccessful && <OtpVerification open={showOtpModal} onClose={() => setShowOtpModal(false)} email={userEmail} type="verify" />
 
             }
         </div>
