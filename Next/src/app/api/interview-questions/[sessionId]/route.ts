@@ -206,7 +206,7 @@ Continue the interview by:
 }
 
 
-export async function POST(request: NextRequest, { params }: { params: { sessionId: string } }) {
+export async function POST(request: NextRequest,) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -227,9 +227,13 @@ export async function POST(request: NextRequest, { params }: { params: { session
         if (!user) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
-
-        const id = await params.sessionId;
-
+        
+        // ✅ Extract dynamic param from URL
+        const id = request.nextUrl.pathname.split("/").pop()
+        
+        if (!id) {
+            return NextResponse.json({ message: "Interview id is required", success: false }, { status: 400 });
+        }
         const interviewSession = await prisma.interview_session.findUnique({
             where: { id: id }
         })
