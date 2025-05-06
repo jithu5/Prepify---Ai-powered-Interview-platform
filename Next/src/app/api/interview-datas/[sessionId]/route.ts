@@ -3,7 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
+type Context = {
+    params: {
+        sessionId: string
+    }
+}
+
+
+export async function GET(request: NextRequest, context:Context) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -27,7 +34,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
             return NextResponse.json({ message: "Account not verified", success: false }, { status: 401 });
         }
 
-        const id = await params.sessionId;
+        const id = await context.params.sessionId;
 
         const interviewSession = await prisma.interview_session.findUnique({
             where: { id: id },

@@ -3,10 +3,15 @@ import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 
-// Correct typing for route handler with dynamic param
+type Context = {
+    params: {
+        answerId: string
+    }
+}
+
 export async function DELETE(
     req: NextRequest,
-    context: { params: { answerId: string } }
+    context: Context
 ) {
     try {
         const session = await getServerSession(authOptions)
@@ -24,17 +29,10 @@ export async function DELETE(
             select: { is_account_verified: true },
         })
 
-        if (!user) {
-            return NextResponse.json(
-                { message: "Unauthorized", success: false },
-                { status: 401 }
-            )
-        }
-
-        if (!user.is_account_verified) {
+        if (!user || !user.is_account_verified) {
             return NextResponse.json(
                 {
-                    message: "Your account needs to be verified",
+                    message: "Unauthorized or Unverified",
                     success: false,
                 },
                 { status: 401 }
@@ -43,42 +41,22 @@ export async function DELETE(
 
         const answerId = context.params.answerId
 
-        if (!answerId) {
-            return NextResponse.json(
-                {
-                    message: "Answer does not exist",
-                    success: false,
-                },
-                { status: 404 }
-            )
-        }
-
         const deleted = await prisma.answer.delete({
             where: { id: answerId },
         })
 
-        if (!deleted) {
-            return NextResponse.json(
-                {
-                    message: "Answer not found or failed to delete",
-                    success: false,
-                },
-                { status: 404 }
-            )
-        }
-
         return NextResponse.json(
             {
-                message: "🎉 Successfully deleted the post...",
+                message: "🎉 Successfully deleted the answer.",
                 success: true,
             },
             { status: 200 }
         )
     } catch (error) {
-        console.error("Server Error Deleting a post:", error)
+        console.error("Error deleting answer:", error)
         return NextResponse.json(
             {
-                message: "Server error in deleting a post",
+                message: "Server error in deleting the answer",
                 success: false,
             },
             { status: 500 }

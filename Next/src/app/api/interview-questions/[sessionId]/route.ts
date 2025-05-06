@@ -6,7 +6,14 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-export async function GET(request: NextRequest, { params }: { params: { sessionId: string } }) {
+type Context = {
+    params: {
+        sessionId: string
+    }
+}
+
+
+export async function GET(request: NextRequest, context:Context) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -19,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
         if (!userToken) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
-        const id = await params.sessionId;
+        const id = await context.params.sessionId;
 
         const user = await prisma.user.findUnique({
             where: { id: userToken.id },

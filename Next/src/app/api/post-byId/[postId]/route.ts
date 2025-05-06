@@ -3,7 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 
-export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+type Context = {
+    params: {
+        postId: string
+    }
+}
+
+
+export async function GET(req: NextRequest, context:Context) {
     try {
         const session = await getServerSession(authOptions)
 
@@ -21,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
             return NextResponse.json({ message: "Verify your account", success: false }, { status: 401 })
         }
 
-        const postId = params.postId
+        const postId = await context.params.postId
 
         if (!postId) {
             return NextResponse.json({ message: "post cannot be found", success: false }, { status: 401 })

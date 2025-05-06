@@ -3,7 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 
-export async function DELETE(req: NextRequest, { params }: { params: {interviewId:string}}) {
+type Context = {
+    params: {
+        interviewId: string
+    }
+}
+
+
+export async function DELETE(req: NextRequest, context:Context) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -31,7 +38,7 @@ export async function DELETE(req: NextRequest, { params }: { params: {interviewI
             }, { status: 401 });
         }
 
-        const interviewId = params.interviewId;
+        const interviewId = context.params.interviewId;
 
         if (!interviewId) {
             return NextResponse.json({
