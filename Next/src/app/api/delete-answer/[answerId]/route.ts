@@ -41,7 +41,7 @@ export async function DELETE(
 
         const answerId = context.params.answerId
 
-        const deleted = await prisma.answer.delete({
+        await prisma.answer.delete({
             where: { id: answerId },
         })
 

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
         console.log(transcription.text);
 
-        return NextResponse.json({ text: transcription.text }, { status: 200 });
+        return NextResponse.json({ transcription: transcription.text }, { status: 200 });
     } catch (err) {
         console.error("Transcription failed:", err);
         return NextResponse.json({ message: "Internal Server Error", success: false }, { status: 500 });
