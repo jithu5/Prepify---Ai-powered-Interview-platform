@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import ScoreChart from './ScoreChart'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { ProfileProps } from './ProfileTabs'
 
 interface Interview {
@@ -41,7 +41,7 @@ function InterviewTab({ setProfileData }: ProfileProps) {
                     setErrorMessage(data.message)
                     toast.error(data.message)
                 }
-            } catch (err: AxiosError|unknown) {
+            } catch (err) {
                 if (axios.isAxiosError(err)) {
 
                     const errMsg = err?.response?.data?.message;
@@ -77,7 +77,7 @@ function InterviewTab({ setProfileData }: ProfileProps) {
                 return
             }
             toast.error(data.message)
-        } catch (error: AxiosError | unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 
                 const errMsg = error?.response?.data?.message || "Server error in deleting interview..."

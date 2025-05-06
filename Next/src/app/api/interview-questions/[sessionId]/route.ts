@@ -84,7 +84,7 @@ export async function GET(request: NextRequest, { params }: { params: { sessionI
 
         let completion;
         const technologies = interviewSession[0]?.technologies
-        const techStacks = technologies.map((t: any) => t.name).join(', ');
+        const techStacks = technologies.map((t: { name: string }) => t.name).join(', ');
 
         const introduction = `
 You are a professional technical interviewer conducting a ${interviewSession[0].type} interview with ${user.firstname} for a ${interviewSession[0].level}-level ${interviewSession[0].position_type} role.

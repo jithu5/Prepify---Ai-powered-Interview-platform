@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Loader2, SendHorizontal, ThumbsUp } from "lucide-react";
@@ -40,7 +40,7 @@ function PostPage() {
                 const res = await axios.get(`/api/post-byId/${postId}`);
                 setPost(res.data.post);
                 setUserId(res.data.userId);
-            } catch (error:AxiosError | unknown) {
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     toast.error(error.response?.data.message)
                 }
@@ -74,7 +74,7 @@ function PostPage() {
                 throw new Error(data.message);
             }
             toast.success(data.message)
-        } catch (error: AxiosError | unknown) {
+        } catch (error) {
             setPost((prevPost) => {
                 if (!prevPost) return null;
                 return { ...prevPost, likes: prevPost.likes.includes(session.user.id) ? prevPost.likes.filter(like => like !== session.user.id) : [...prevPost.likes, session.user.id] };
@@ -113,7 +113,7 @@ function PostPage() {
                 return
             }
             toast.error(data.message)
-        } catch (error: AxiosError | unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error.response?.data.message)
             } else {

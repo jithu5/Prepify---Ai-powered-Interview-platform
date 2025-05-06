@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from './ui/card'
 import { Badge } from './ui/badge'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { toast } from 'sonner'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination'
 import { Loader2, MessageCircleMore } from 'lucide-react'
@@ -60,7 +60,7 @@ function PostTab({ setProfileData }: Props) {
                     return;
                 }
                 toast.error(data.message);
-            } catch (error: AxiosError|unknown) {
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     toast.error(error?.response?.data?.message)
                 } else {
@@ -93,7 +93,7 @@ function PostTab({ setProfileData }: Props) {
                 return
             }
             toast.error(data.message)
-        } catch (error: AxiosError|unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error?.response?.data?.message)
             } else {

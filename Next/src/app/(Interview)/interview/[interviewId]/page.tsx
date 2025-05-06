@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from "sonner";
 import ChatSession from '@/components/ChatSession';
 import ChatInput from '@/components/ChatInput';
@@ -48,7 +48,7 @@ function InterviewSectionPage() {
             setSessions((prev) => [...prev, data.question]);
             setQuestionId(data.question?.id);
             toast.success(data.message);
-        } catch (error: AxiosError | unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
 
                 toast.error(error?.response?.data?.message || "Error fetching interview data");
@@ -73,7 +73,7 @@ function InterviewSectionPage() {
                 } else {
                     toast.success(data.message);
                 }
-            } catch (error: AxiosError | unknown) {
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     toast.error(error?.response?.data?.message || "Error fetching interview data");   
                 }
@@ -120,7 +120,7 @@ function InterviewSectionPage() {
             } else {
                 toast.error(data.message);
             }
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
                 toast.error(err?.response?.data?.message || "Error submitting answer");
 
@@ -144,7 +144,7 @@ function InterviewSectionPage() {
             } else {
                 toast.error(data.message);
             }
-        } catch (error: AxiosError | unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
 
                 toast.error(error?.response?.data?.message || "Error stopping interview session");

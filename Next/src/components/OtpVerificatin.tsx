@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "./ui/button"
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import TimeLeft from "./TimeLeft";
@@ -59,7 +59,7 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
 
             }
             toast.error(data.message)
-        } catch (error: AxiosError|unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error?.response?.data?.message)
             } else {
@@ -87,7 +87,7 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
                     router.push("/login")
                     return
                 }
-            } catch (error: AxiosError|unknown) {
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     toast.error(error?.response?.data?.message)
                 } else {

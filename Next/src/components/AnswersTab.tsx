@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { ProfileProps } from './ProfileTabs'
 import { Card } from './ui/card';
 import { useRouter } from 'next/navigation';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Loader2 } from 'lucide-react';
@@ -51,7 +51,7 @@ function AnswersTab({ setProfileData }: ProfileProps) {
                     return;
                 }
                 toast.error(data.message);
-            } catch (err: AxiosError|unknown) {
+            } catch (err) {
                 if (axios.isAxiosError(err)) {
 
                     const errMsg = err?.response?.data?.message;
@@ -87,7 +87,7 @@ function AnswersTab({ setProfileData }: ProfileProps) {
                 return
             }
             toast.error(data.message)
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
 
                 const errMsg = err?.response?.data?.message;

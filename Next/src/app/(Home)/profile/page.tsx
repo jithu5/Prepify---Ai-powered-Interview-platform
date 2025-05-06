@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
-import axios, { AxiosError } from "axios"
+import axios from "axios"
 import { toast } from "sonner"
 import ProfileTabs from "@/components/ProfileTabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -49,7 +49,7 @@ export default function ProfilePage() {
                     return
                 }
                 toast.error(data.message)
-            } catch (error: AxiosError|unknown) {
+            } catch (error) {
                 if (axios.isAxiosError(error)) {
                     const errMsg = error?.response?.data?.message || "Server error in getting user data";
                     toast.error(errMsg)

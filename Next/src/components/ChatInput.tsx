@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'sonner';
 
 type Props = {
@@ -77,7 +77,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
                 });
                 console.log(data);
                 await onSubmit(data.transcription,questionId)
-            } catch (err:AxiosError|unknown) {
+            } catch (err) {
                 if (axios.isAxiosError(err)) {
 
                     const errMsg = err?.response?.data?.message;

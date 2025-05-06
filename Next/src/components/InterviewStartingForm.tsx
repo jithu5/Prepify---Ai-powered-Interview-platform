@@ -2,7 +2,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Loader2, X } from "lucide-react"
 import { toast } from 'sonner';
@@ -68,7 +68,7 @@ function InterviewStartingForm() {
                 console.error('Error starting interview session:', response.data.message);
                 alert(response.data.message);
             }
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
 
                 const errMsg = err?.response?.data?.message;

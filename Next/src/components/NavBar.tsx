@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react"
 import '@fontsource/titillium-web';
 import '@fontsource-variable/quicksand';
 import OtpVerification from "./OtpVerificatin"
-import axios, { AxiosError } from "axios"
+import axios from "axios"
 import { toast } from "sonner"
 
 function NavBar() {
@@ -47,7 +47,7 @@ function NavBar() {
                 return
             }
             toast.error(data.message)
-        } catch (error: AxiosError|unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error?.response?.data?.message)
             }else{

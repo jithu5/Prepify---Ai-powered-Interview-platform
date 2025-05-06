@@ -3,7 +3,7 @@ import { MessageCircleMore, ThumbsUp } from 'lucide-react'
 import { Post } from './CommunityPosts'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 
 interface Props {
     post: Post,
@@ -41,7 +41,7 @@ function PostsButtons({ post, setPosts }: Props) {
                 throw new Error(data.message);
             }
             toast.success(data.message)
-        } catch (error:AxiosError|unknown) {
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 toast.error(error?.response?.data?.message)
             } else {

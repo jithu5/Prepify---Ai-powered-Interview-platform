@@ -1,6 +1,6 @@
 // types/next-auth.d.ts
 import NextAuth from "next-auth";
-NextAuth
+NextAuth.length
 declare module "next-auth" {
     interface Session {
         user: {

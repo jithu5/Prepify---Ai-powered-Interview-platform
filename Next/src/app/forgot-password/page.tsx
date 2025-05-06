@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import OtpVerification from "@/components/OtpVerificatin";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 type FormValues = {
     email: string;
@@ -33,7 +33,7 @@ function ForgotPasswordPage() {
             }
             toast.error(data.message)
 
-        } catch (err:AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
                 
                 const errMsg = err?.response?.data?.message;

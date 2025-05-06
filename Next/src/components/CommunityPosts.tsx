@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import CommunityPostForm from './CommunityPostForm';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'sonner';
 import {
     Pagination, PaginationContent, PaginationItem,
@@ -60,7 +60,7 @@ function CommunityPosts() {
                 return;
             }
             toast.error(data.message);
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
 
                 const errMsg = err?.response?.data?.message;
@@ -100,7 +100,7 @@ function CommunityPosts() {
                 return;
             }
             toast.error(data.message);
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
 
                 const errMsg = err?.response?.data?.message;

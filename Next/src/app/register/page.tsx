@@ -6,7 +6,7 @@ import { useDebounceCallback } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import OtpVerification from "@/components/OtpVerificatin";
 
 type RegisterForm = {
@@ -65,7 +65,7 @@ export default function RegisterPage() {
                 setError(data.message);
                 toast.error(data.message);
             }
-        } catch (err: AxiosError|unknown) {
+        } catch (err) {
             if (axios.isAxiosError(err)) {
 
                 const errMsg = err?.response?.data?.message;
