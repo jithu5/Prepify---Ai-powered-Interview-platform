@@ -81,7 +81,7 @@ function InterviewSectionPage() {
             }
         };
         fetchQuestions();
-    }, [interviewId]);
+    }, [interviewId,router]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

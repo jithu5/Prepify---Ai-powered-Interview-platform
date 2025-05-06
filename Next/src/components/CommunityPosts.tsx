@@ -76,7 +76,7 @@ function CommunityPosts() {
 
     useEffect(() => {
         fetchPosts();
-    }, [page]); // ✅ No cleanup👈 re-fetch when page changes
+    }, [page,fetchPosts]); // ✅ No cleanup👈 re-fetch when page changes
 
     const onSearch = async (formData: {tags:string}) => {
         console.log(formData)
