@@ -82,14 +82,14 @@ function InterviewStartingForm() {
         <>
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6 mt-10">
                 <div className="max-w-xl w-full bg-white p-10 rounded-2xl shadow-xl">
-                    <h1 className="text-3xl font-bold text-center mb-4">Let's Get Started</h1>
+                    <h1 className="text-3xl font-bold text-center mb-4">Let&apros;s Get Started</h1>
                     <p className="text-gray-600 text-center mb-8">
                         Fill in your details so we can generate a personalized interview experience.
                     </p>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Role You're Preparing For</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Role You&apros;re Preparing For</label>
                             <input
                                 type="text"
                                 placeholder="e.g., DevOps Engineer"

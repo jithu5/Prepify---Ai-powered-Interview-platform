@@ -53,9 +53,12 @@ export const authOptions: NextAuthOptions = {
                         isAccountVerified:user.is_account_verified
                     }
                     
-                } catch (error:any) {
-                    console.error("Auth error:", error.message);
-                    throw error
+                } catch (error:unknown) {
+                    if (error instanceof Error) {
+                        console.error("Auth error:", error.message);
+                        throw error;
+                    }
+                    throw new Error('An unexpected error occurred');
                 }
                 finally{
                     await prisma.$disconnect()

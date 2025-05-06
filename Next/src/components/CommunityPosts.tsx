@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, ThumbsUp } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import CommunityPostForm from './CommunityPostForm';
 import axios, { AxiosError } from 'axios';
@@ -34,7 +34,7 @@ function CommunityPosts() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [openForm, setOpenForm] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(25);
+    const limit:number = 25;
     const [totalPosts, setTotalPosts] = useState<number>(0);
     const [loadingPosts, setLoadingPosts] = useState<boolean>(false)
     const router=  useRouter()

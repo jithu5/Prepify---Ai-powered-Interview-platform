@@ -10,7 +10,7 @@ const Footer = () => {
                     Join thousands levelling up with AI.
                 </h2>
                 <p className="text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto">
-                    Whether you're preparing for your first tech job or your next big role — we’ve got your back.
+                    Whether you&apros;re preparing for your first tech job or your next big role — we&apros;ve got your back.
                 </p>
 
                 {/* Navigation Links */}

@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import OtpVerification from "@/components/OtpVerificatin";
-import { emit } from "process";
-import Email from "next-auth/providers/email";
 import axios, { AxiosError } from "axios";
 
 type FormValues = {
@@ -53,7 +51,7 @@ function ForgotPasswordPage() {
                     Forgot Password?
                 </h2>
                 <p className="text-sm text-center text-gray-600 mb-6">
-                    Enter your email and we'll send you a OTP to reset your password.
+                    Enter your email and we&apros;ll send you a OTP to reset your password.
                 </p>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

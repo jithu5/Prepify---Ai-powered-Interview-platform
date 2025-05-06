@@ -77,9 +77,12 @@ function InterviewTab({ setProfileData }: ProfileProps) {
                 return
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server error in deleting interview..."
-            toast.error(errMsg)
+        } catch (error: AxiosError | unknown) {
+            if (axios.isAxiosError(error)) {
+                
+                const errMsg = error?.response?.data?.message || "Server error in deleting interview..."
+                toast.error(errMsg)
+            }
         } finally {
             setDeletingInterviewId(null)
         }

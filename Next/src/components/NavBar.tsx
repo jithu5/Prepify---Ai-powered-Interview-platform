@@ -130,7 +130,7 @@ function NavBar() {
                     )
                 }
             </div>
-            {modalOpen && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email!} type="verify" />}
+            {modalOpen && session?.user && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email} type="verify" />}
         </nav>
     )
 }

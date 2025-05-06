@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession, User } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma"
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        const technologies = await Promise.all(
+        await Promise.all(
             techStacks.map((tech: string) =>
                 prisma.technology.create({
                     data: {

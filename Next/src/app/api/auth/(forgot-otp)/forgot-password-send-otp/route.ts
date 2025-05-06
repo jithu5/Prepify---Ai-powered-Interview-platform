@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         const otp = Math.floor(100000 + Math.random() * 900000) // a 6 digit otp
         console.log(otp)
 
-        const updateUser = await prisma.user.update({
+        await prisma.user.update({
             where: { email: email },
             data: {
                 forgot_password_otp: otp,

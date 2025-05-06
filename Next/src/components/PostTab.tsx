@@ -35,7 +35,7 @@ interface Props {
 function PostTab({ setProfileData }: Props) {
     const [posts, setPosts] = useState<Post[]>([])
     const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(25);
+    const limit:number = 25
     const [totalPosts, setTotalPosts] = useState<number>(0);
     const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
 

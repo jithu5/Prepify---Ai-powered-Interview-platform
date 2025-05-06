@@ -48,8 +48,11 @@ function InterviewSectionPage() {
             setSessions((prev) => [...prev, data.question]);
             setQuestionId(data.question?.id);
             toast.success(data.message);
-        } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Error fetching interview data");
+        } catch (error: AxiosError | unknown) {
+            if (axios.isAxiosError(error)) {
+
+                toast.error(error?.response?.data?.message || "Error fetching interview data");
+            }
         } finally {
             setIsQuestionLoading(false);
         }
@@ -70,8 +73,10 @@ function InterviewSectionPage() {
                 } else {
                     toast.success(data.message);
                 }
-            } catch (error: any) {
-                toast.error(error?.response?.data?.message || "Error fetching interview data");
+            } catch (error: AxiosError | unknown) {
+                if (axios.isAxiosError(error)) {
+                    toast.error(error?.response?.data?.message || "Error fetching interview data");   
+                }
                 router.push('/home');
             }
         };
@@ -115,8 +120,11 @@ function InterviewSectionPage() {
             } else {
                 toast.error(data.message);
             }
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Error submitting answer");
+        } catch (err: AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+                toast.error(err?.response?.data?.message || "Error submitting answer");
+
+            }
         } finally {
             setIsFeedbackLoading(false);
             setIsSubmitting(false);
@@ -136,11 +144,11 @@ function InterviewSectionPage() {
             } else {
                 toast.error(data.message);
             }
-        } catch (error: AxiosError|unknown) {
+        } catch (error: AxiosError | unknown) {
             if (axios.isAxiosError(error)) {
-                
+
                 toast.error(error?.response?.data?.message || "Error stopping interview session");
-            }else{
+            } else {
                 toast.error("Server error in stopping interview session")
             }
         }
@@ -158,7 +166,7 @@ function InterviewSectionPage() {
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently stop your session and you can't continue it later.
+                                    This action cannot be undone. This will permanently stop your session and you can&apros;t continue it later.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -197,7 +205,7 @@ function InterviewSectionPage() {
                         <Button>Next Question</Button>
                     </div>
                 </div>
-                <ChatInput questionId={questionId} onSubmit={handleAnswerSubmit} />
+                <ChatInput isSubmitting={isSubmitting} questionId={questionId} onSubmit={handleAnswerSubmit} />
 
             </div>
         </>

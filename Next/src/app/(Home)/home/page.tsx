@@ -51,7 +51,7 @@ function HomePage() {
             </div>
             <div className="p-6 border rounded-2xl shadow-sm hover:shadow-md transition">
               <h3 className="text-xl font-semibold mb-2">Track Your Progress</h3>
-              <p className="text-gray-600">See what you've improved, revisit past questions, and get better with each session.</p>
+              <p className="text-gray-600">See what you&apos;ve improved, revisit past questions, and get better with each session.</p>
             </div>
           </div>
         </section>

@@ -31,7 +31,7 @@ const formatDate = (dateStr: string) =>
 function AnswersTab({ setProfileData }: ProfileProps) {
     const [answers, setAnswers] = useState<Answer[]>([])
     const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(25);
+    const limit:number = 25;
     const [totalAnswers, setTotalAnswers] = useState<number>(0);
     const [deletingAnswerId, setDeletingAnswerId] = useState<string | null>(null);
 

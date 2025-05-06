@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         if (diff > twoMinutes) {
             return NextResponse.json({ message: "Time limit expired", success: false }, { status: 401 });
         }
-        const updateUser = await prisma.user.update({
+        await prisma.user.update({
             where: { email },
             data: {
                 forgot_password_otp: null,

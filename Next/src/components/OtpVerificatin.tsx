@@ -106,7 +106,7 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
                         </DialogTitle>
                         <DialogDescription className="text-sm text-gray-600 w-[100%] text-center">
                             {openPasswordModal ?" Set a new password for your account" : <>
-                            We've sent a 6-digit verification code to<span className="font-medium text-gray-800">{email}</span>.<br />
+                                We&apros; ve sent a 6-digit verification code to<span className="font-medium text-gray-800">{email}</span>.<br />
                            Please enter it below.
                            </>}
                     </DialogDescription>

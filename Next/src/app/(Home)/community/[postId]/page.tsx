@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { Loader2, SendHorizontal, ThumbsUp } from "lucide-react";
 import { formatRelativeTime } from "@/lib/FormateRelativeTime";
 import { Button } from "@/components/ui/button";
@@ -35,9 +36,15 @@ function PostPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await axios.get(`/api/post-byId/${postId}`);
-            setPost(res.data.post);
-            setUserId(res.data.userId);
+            try {
+                const res = await axios.get(`/api/post-byId/${postId}`);
+                setPost(res.data.post);
+                setUserId(res.data.userId);
+            } catch (error:AxiosError | unknown) {
+                if (axios.isAxiosError(error)) {
+                    toast.error(error.response?.data.message)
+                }
+            }
         };
         fetchData();
     }, [postId]);
@@ -57,16 +64,6 @@ function PostPage() {
             if (prevPost === null) return null;
             return { ...prevPost, likes: prevPost.likes.includes(session.user.id) ? prevPost.likes.filter(like => like !== session.user.id) : [...prevPost.likes, session.user.id] };
         });
-        // setPost((prevPost) => {
-        //     if (prevPost === null) return null;
-        //     const hasLiked = prevPost.likes.includes(session.user.id);
-        //     return {
-        //         ...prevPost,
-        //         likes: hasLiked
-        //             ? prevPost.likes.filter(like => like !== session.user.id) // remove like
-        //             : [...prevPost.likes, session.user.id] // add like
-        //     };
-        // });
         try {
             const { data } = await axios.post(`/api/like-post`, { postId }, {
                 headers: { "Content-Type": "application/json" },
@@ -116,9 +113,12 @@ function PostPage() {
                 return
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server error in posting answer"
-            toast.error(errMsg)
+        } catch (error: AxiosError | unknown) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data.message)
+            } else {
+                toast.error("Server Error")
+            }
         }
         finally {
             setAnswer("")
@@ -147,7 +147,7 @@ function PostPage() {
                         Answer: {post.answer}
                     </h1>
                     <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-2">
-                        <img src="/amazon-logo.png" alt="Amazon" className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Image src="/amazon-logo.png" alt="Amazon" className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>Asked at Amazon • {formatRelativeTime(new Date(post.created_at).toISOString())}</span>
                     </div>
                 </div>
@@ -183,7 +183,7 @@ function PostPage() {
                             solutions and providing feedback.
                         </li>
                         <li>
-                            <strong>Be inclusive.</strong> Respect everyone's opinions and
+                            <strong>Be inclusive.</strong> Respect everyone&apos;s opinions and
                             beliefs.
                         </li>
                     </ul>
@@ -261,7 +261,7 @@ function PostPage() {
                             How would you explain the role of a product manager to a 4-year-old?
                         </li>
                         <li className="text-blue-600 hover:underline">
-                            You're an Apple product manager. Improve the iPhone Notes app.
+                            You&apos;re an Apple product manager. Improve the iPhone Notes app.
                         </li>
                     </ul>
                 </div>

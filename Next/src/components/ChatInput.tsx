@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 type Props = {
     onSubmit: (answer:string,questionId:string) => void;
     questionId:string
+    isSubmitting:boolean
 };
 
-export default function ChatInput({ onSubmit, questionId }: Props) {
+export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) {
         const [isRecording, setIsRecording] = useState(false);
         const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
         const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -133,7 +134,7 @@ export default function ChatInput({ onSubmit, questionId }: Props) {
                         onClick={uploadAudio}
                         disabled={!audioBlob}
                     >
-                        Send Audio
+                        {isSubmitting?"sending...":"Send Audio"}
                     </Button>
                 </div>
             </div>

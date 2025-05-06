@@ -15,8 +15,15 @@ interface Props {
     refetchPosts: () => void; // 👈 Accept it
 }
 
+interface CommunityPostFormData {
+    question: string;
+    answer: string;
+    tags: string[];
+}
+
+
 function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
-    const { handleSubmit, register, reset, setValue, formState: { isSubmitting, errors } } = useForm();
+    const { handleSubmit, register, reset, setValue, formState: { isSubmitting, errors } } = useForm<CommunityPostFormData>();
     const [tagValue, setTagValue] = useState<string>('');
     const [tagLists, setTagLists] = useState<string[]>([]);
 
@@ -39,7 +46,7 @@ function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
         setValue('tags', updatedTagList);
     };
 
-    const onSubmit = async (formData: any) => {
+    const onSubmit = async (formData: CommunityPostFormData) => {
         console.log(formData);
         try {
             const {data}= await axios.post("/api/create-post",formData,{

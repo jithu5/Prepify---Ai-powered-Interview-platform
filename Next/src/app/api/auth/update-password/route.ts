@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "Email not found", success: false }, { status: 401 })
         }
         const hashedPassword = await bcrypt.hash(password,10)
-        const updateUser = await prisma.user.update({
+        await prisma.user.update({
             where:{email},
             data:{
                 password:hashedPassword,

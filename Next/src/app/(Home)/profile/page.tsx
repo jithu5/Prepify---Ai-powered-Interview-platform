@@ -7,7 +7,6 @@ import axios, { AxiosError } from "axios"
 import { toast } from "sonner"
 import ProfileTabs from "@/components/ProfileTabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { unknown } from "zod"
 
 export interface User {
     firstname: string
@@ -29,13 +28,6 @@ const demoUser = {
     username: "abijithk",
     bio: "Aspiring full-stack dev & AI explorer 🚀",
     verified: true,
-}
-
-const demoStats = {
-    mockCount: 12,
-    avgScore: 82.6,
-    answersGiven: 42,
-    questionsPosted: 17,
 }
 
 export default function ProfilePage() {
