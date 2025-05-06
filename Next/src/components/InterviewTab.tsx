@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import ScoreChart from './ScoreChart'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { ProfileProps } from './ProfileTabs'
 
 interface Interview {
@@ -41,11 +41,17 @@ function InterviewTab({ setProfileData }: ProfileProps) {
                     setErrorMessage(data.message)
                     toast.error(data.message)
                 }
-            } catch (error: any) {
-                const errMessage = error?.response?.data?.message || "Error fetching interview data"
+            } catch (err: AxiosError|unknown) {
+                if (axios.isAxiosError(err)) {
+
+                    const errMsg = err?.response?.data?.message;
+                    toast.error(errMsg);
+                    setErrorMessage(err?.response?.data?.message)
+                } else {
+                    setErrorMessage("Server error in submitting")
+                    toast.error("Server error in submitting")
+                }
                 setIsError(true)
-                setErrorMessage(errMessage)
-                toast.error(errMessage)
             } finally {
                 setIsLoading(false)
             }

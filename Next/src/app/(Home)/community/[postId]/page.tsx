@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
 import { Loader2, SendHorizontal, ThumbsUp } from "lucide-react";
 import { formatRelativeTime } from "@/lib/FormateRelativeTime";
@@ -40,7 +40,7 @@ function PostPage() {
             setUserId(res.data.userId);
         };
         fetchData();
-    }, []);
+    }, [postId]);
 
     useEffect(() => {
         if (post && userId) {
@@ -77,13 +77,17 @@ function PostPage() {
                 throw new Error(data.message);
             }
             toast.success(data.message)
-        } catch (error) {
-            toast.error("Failed to like post");
-            // Optionally revert
+        } catch (error: AxiosError | unknown) {
             setPost((prevPost) => {
                 if (!prevPost) return null;
                 return { ...prevPost, likes: prevPost.likes.includes(session.user.id) ? prevPost.likes.filter(like => like !== session.user.id) : [...prevPost.likes, session.user.id] };
             })
+            if (axios.isAxiosError(error)) {
+                toast.error(error?.response?.data?.message || "An error occurred");
+                return
+            }
+            toast.error("An error occured")
+            // Optionally revert
 
         }
     };

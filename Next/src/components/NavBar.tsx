@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react"
 import '@fontsource/titillium-web';
 import '@fontsource-variable/quicksand';
 import OtpVerification from "./OtpVerificatin"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { toast } from "sonner"
 
 function NavBar() {
@@ -47,9 +47,12 @@ function NavBar() {
                 return
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message;
-            toast.error(errMsg)
+        } catch (error: AxiosError|unknown) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error?.response?.data?.message)
+            }else{
+                toast.error("Server error")
+            }
         }
         finally {
             setSendingOtp(false)

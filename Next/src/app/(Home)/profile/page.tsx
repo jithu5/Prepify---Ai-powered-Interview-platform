@@ -3,10 +3,11 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { toast } from "sonner"
 import ProfileTabs from "@/components/ProfileTabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { unknown } from "zod"
 
 export interface User {
     firstname: string
@@ -56,9 +57,13 @@ export default function ProfilePage() {
                     return
                 }
                 toast.error(data.message)
-            } catch (error: any) {
-                const errMsg = error?.response?.data?.message || "Server error in getting user data";
-                toast.error(errMsg)
+            } catch (error: AxiosError|unknown) {
+                if (axios.isAxiosError(error)) {
+                    const errMsg = error?.response?.data?.message || "Server error in getting user data";
+                    toast.error(errMsg)
+                }else{
+                    toast.error("Server error in getting user data")
+                }
             }
             finally {
                 setProfileLoading(false)

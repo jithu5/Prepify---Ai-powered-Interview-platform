@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { useForm } from 'react-hook-form';
 import { Textarea } from './ui/textarea';
 import { Loader2, Upload, X } from 'lucide-react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 
 interface Props {
@@ -55,9 +55,14 @@ function CommunityPostForm({ open, onClose,refetchPosts }: Props) {
                 return
             }
             toast.error(data.message)
-        } catch (error:any) {
-            const errMsg = error?.response?.data?.message;
-            toast.error(errMsg)
+        } catch (err:AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            } else {
+                toast.error("Server error in submitting")
+            }
         }
     };
 

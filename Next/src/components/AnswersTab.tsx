@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { ProfileProps } from './ProfileTabs'
 import { Card } from './ui/card';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Loader2 } from 'lucide-react';
@@ -51,9 +51,14 @@ function AnswersTab({ setProfileData }: ProfileProps) {
                     return;
                 }
                 toast.error(data.message);
-            } catch (error: any) {
-                const errMsg = error?.response?.data?.message || "Server Error";
-                toast.error(errMsg);
+            } catch (err: AxiosError|unknown) {
+                if (axios.isAxiosError(err)) {
+
+                    const errMsg = err?.response?.data?.message;
+                    toast.error(errMsg);
+                } else {
+                    toast.error("Server error in submitting")
+                }
             }
         }
 
@@ -82,9 +87,14 @@ function AnswersTab({ setProfileData }: ProfileProps) {
                 return
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server Error in deleting post"
-            toast.error(errMsg)
+        } catch (err: AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            } else {
+                toast.error("Server error in submitting")
+            }
         } finally {
             setDeletingAnswerId(null);
         }

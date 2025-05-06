@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, ThumbsUp } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import CommunityPostForm from './CommunityPostForm';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import {
     Pagination, PaginationContent, PaginationItem,
@@ -60,9 +60,14 @@ function CommunityPosts() {
                 return;
             }
             toast.error(data.message);
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server Error";
-            toast.error(errMsg);
+        } catch (err: AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            } else {
+                toast.error("Server error in submitting")
+            }
         }
         finally {
             setLoadingPosts(false)
@@ -95,9 +100,14 @@ function CommunityPosts() {
                 return;
             }
             toast.error(data.message);
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server Error";
-            toast.error(errMsg);
+        } catch (err: AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            } else {
+                toast.error("Server error in submitting")
+            }
         }
         finally {
             reset()

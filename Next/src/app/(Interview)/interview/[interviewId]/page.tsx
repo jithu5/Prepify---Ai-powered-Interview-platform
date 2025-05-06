@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from "sonner";
 import ChatSession from '@/components/ChatSession';
 import ChatInput from '@/components/ChatInput';
@@ -136,8 +136,13 @@ function InterviewSectionPage() {
             } else {
                 toast.error(data.message);
             }
-        } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Error stopping interview session");
+        } catch (error: AxiosError|unknown) {
+            if (axios.isAxiosError(error)) {
+                
+                toast.error(error?.response?.data?.message || "Error stopping interview session");
+            }else{
+                toast.error("Server error in stopping interview session")
+            }
         }
     };
 

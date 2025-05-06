@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import OtpVerification from "@/components/OtpVerificatin";
 import { emit } from "process";
 import Email from "next-auth/providers/email";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 type FormValues = {
     email: string;
@@ -35,9 +35,14 @@ function ForgotPasswordPage() {
             }
             toast.error(data.message)
 
-        } catch (err:any) {
-            const errMsg = err?.response?.data?.message;
-            toast.error(errMsg);
+        } catch (err:AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+                
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            }else{
+                toast.error("Server error in submitting")
+            }
         }
     };
 

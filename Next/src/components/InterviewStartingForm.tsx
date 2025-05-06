@@ -2,7 +2,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Loader2, X } from "lucide-react"
 import { toast } from 'sonner';
@@ -68,10 +68,14 @@ function InterviewStartingForm() {
                 console.error('Error starting interview session:', response.data.message);
                 alert(response.data.message);
             }
-        } catch (error: any) {
-            const errorMessage = error.response?.data?.message || 'An error occurred while starting the interview session.';
-            console.error('Failed to start interview session:', errorMessage);
-            toast.error(errorMessage)
+        } catch (err: AxiosError|unknown) {
+            if (axios.isAxiosError(err)) {
+
+                const errMsg = err?.response?.data?.message;
+                toast.error(errMsg);
+            } else {
+                toast.error("Server error in submitting")
+            }
         }
     };
     return (

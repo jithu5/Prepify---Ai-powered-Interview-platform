@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from './ui/card'
 import { Badge } from './ui/badge'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from './ui/pagination'
 import { Loader2, MessageCircleMore } from 'lucide-react'
@@ -60,9 +60,12 @@ function PostTab({ setProfileData }: Props) {
                     return;
                 }
                 toast.error(data.message);
-            } catch (error: any) {
-                const errMsg = error?.response?.data?.message || "Server Error";
-                toast.error(errMsg);
+            } catch (error: AxiosError|unknown) {
+                if (axios.isAxiosError(error)) {
+                    toast.error(error?.response?.data?.message)
+                } else {
+                    toast.error("Server error")
+                }
             }
         }
 
@@ -90,9 +93,12 @@ function PostTab({ setProfileData }: Props) {
                 return
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Server Error in deleting post"
-            toast.error(errMsg)
+        } catch (error: AxiosError|unknown) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error?.response?.data?.message)
+            } else {
+                toast.error("Server error")
+            }
         } finally {
             setDeletingPostId(null);
         }

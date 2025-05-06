@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "./ui/button"
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import TimeLeft from "./TimeLeft";
@@ -59,9 +59,12 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
 
             }
             toast.error(data.message)
-        } catch (error: any) {
-            const errMsg = error?.response?.data?.message || "Error in verifying email"
-            toast.error(errMsg)
+        } catch (error: AxiosError|unknown) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error?.response?.data?.message)
+            } else {
+                toast.error("Server error")
+            }
         } finally {
             setOtp("")
         }
@@ -84,9 +87,12 @@ export default function OtpVerification({ open, onClose, email, type }: Props) {
                     router.push("/login")
                     return
                 }
-            } catch (error: any) {
-                const errMsg = error?.response?.data?.message || "Server erro in updating password";
-                toast.error(errMsg)
+            } catch (error: AxiosError|unknown) {
+                if (axios.isAxiosError(error)) {
+                    toast.error(error?.response?.data?.message)
+                } else {
+                    toast.error("Server error")
+                }
             }
         };
 

@@ -2,7 +2,8 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'sonner';
 
 type Props = {
     onSubmit: (answer:string,questionId:string) => void;
@@ -75,8 +76,14 @@ export default function ChatInput({ onSubmit, questionId }: Props) {
                 });
                 console.log(data);
                 await onSubmit(data.transcription,questionId)
-            } catch (error) {
-                console.error(error);
+            } catch (err:AxiosError|unknown) {
+                if (axios.isAxiosError(err)) {
+
+                    const errMsg = err?.response?.data?.message;
+                    toast.error(errMsg);
+                } else {
+                    toast.error("Server error in submitting")
+                }
             }
         } else {
             console.error("No audio data to upload.");
