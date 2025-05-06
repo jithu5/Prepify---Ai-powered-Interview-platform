@@ -41,8 +41,8 @@ function PostsButtons({ post, setPosts }: Props) {
                 throw new Error(data.message);
             }
             toast.success(data.message)
-        } catch (error) {
-            toast.error("Failed to like post");
+        } catch (error:any) {
+            toast.error(error?.response?.data?.message);
             // Optionally revert
             setPosts((prevPosts) =>
                 prevPosts.map((post) => {

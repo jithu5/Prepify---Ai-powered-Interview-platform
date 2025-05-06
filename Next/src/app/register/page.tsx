@@ -28,8 +28,6 @@ export default function RegisterPage() {
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [userEmail, setUserEmail] = useState("");
 
-    const router = useRouter();
-
     const debounced = useDebounceCallback(setUsername, 500);
     const watchedUsername = watch("username");
 

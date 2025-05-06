@@ -192,7 +192,7 @@ function InterviewSectionPage() {
                         <Button>Next Question</Button>
                     </div>
                 </div>
-                <ChatInput questionId={questionId} onSubmit={handleAnswerSubmit} isSubmitting={isSubmitting} />
+                <ChatInput questionId={questionId} onSubmit={handleAnswerSubmit} />
 
             </div>
         </>

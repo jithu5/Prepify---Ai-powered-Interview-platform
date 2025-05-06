@@ -6,11 +6,10 @@ import axios from 'axios';
 
 type Props = {
     onSubmit: (answer:string,questionId:string) => void;
-    isSubmitting?: boolean;
     questionId:string
 };
 
-export default function ChatInput({ onSubmit, isSubmitting, questionId }: Props) {
+export default function ChatInput({ onSubmit, questionId }: Props) {
         const [isRecording, setIsRecording] = useState(false);
         const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
         const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -71,7 +70,7 @@ export default function ChatInput({ onSubmit, isSubmitting, questionId }: Props)
                 for (const [key, value] of formData.entries()) {
                     console.log(`${key}:`, value);
                 }
-                const { data } = await axios.post("http://localhost:8000/api/speech-to-text", formData, {
+                const { data } = await axios.post("/api/speech-to-text", formData, {
                     withCredentials: true
                 });
                 console.log(data);
