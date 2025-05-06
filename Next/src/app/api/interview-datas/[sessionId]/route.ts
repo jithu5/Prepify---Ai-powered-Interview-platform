@@ -3,14 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-type Context = {
-    params: {
-        sessionId: string
-    }
-}
-
-
-export async function GET(request: NextRequest, context:Context) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -34,7 +27,12 @@ export async function GET(request: NextRequest, context:Context) {
             return NextResponse.json({ message: "Account not verified", success: false }, { status: 401 });
         }
 
-        const id = await context.params.sessionId;
+        // ✅ Extract dynamic param from URL
+        const id = req.nextUrl.pathname.split("/").pop()
+
+        if (!id) {
+            return NextResponse.json({message:"Interview Id is required",success:false},{status:400})
+        }
 
         const interviewSession = await prisma.interview_session.findUnique({
             where: { id: id },

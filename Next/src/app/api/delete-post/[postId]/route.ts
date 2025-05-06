@@ -3,14 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 
-type Context = {
-    params: {
-        postId: string
-    }
-}
-
-
-export async function DELETE(req: NextRequest,context:Context) {
+export async function DELETE(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -38,7 +31,8 @@ export async function DELETE(req: NextRequest,context:Context) {
             }, { status: 401 });
         }
 
-        const postId = context.params.postId;
+        // ✅ Extract dynamic param from URL
+        const postId = req.nextUrl.pathname.split("/").pop()
         
         if (!postId) {
             return NextResponse.json({

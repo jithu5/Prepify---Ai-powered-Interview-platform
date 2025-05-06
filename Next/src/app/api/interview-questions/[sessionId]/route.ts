@@ -6,14 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-type Context = {
-    params: {
-        sessionId: string
-    }
-}
-
-
-export async function GET(request: NextRequest, context:Context) {
+export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
 
@@ -26,8 +19,12 @@ export async function GET(request: NextRequest, context:Context) {
         if (!userToken) {
             return NextResponse.json({ message: "Unauthorized", success: false }, { status: 401 });
         }
-        const id = await context.params.sessionId;
-
+        // ✅ Extract dynamic param from URL
+        const id = req.nextUrl.pathname.split("/").pop()
+        if (!id) {
+            return NextResponse.json({ message: "Interview Id is required", success: false }, { status: 400 });
+        
+        }
         const user = await prisma.user.findUnique({
             where: { id: userToken.id },
             include: {

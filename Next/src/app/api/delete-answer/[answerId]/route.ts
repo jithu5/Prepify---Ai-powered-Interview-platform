@@ -3,15 +3,8 @@ import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 
-type Context = {
-    params: {
-        answerId: string
-    }
-}
-
 export async function DELETE(
     req: NextRequest,
-    context: Context
 ) {
     try {
         const session = await getServerSession(authOptions)
@@ -39,7 +32,11 @@ export async function DELETE(
             )
         }
 
-        const answerId = context.params.answerId
+        // ✅ Extract dynamic param from URL
+        const answerId = req.nextUrl.pathname.split("/").pop()
+        if (!answerId) {
+            return NextResponse.json({message:"AnswerId is rewuired",success:false},{status:400})
+        }
 
         await prisma.answer.delete({
             where: { id: answerId },
