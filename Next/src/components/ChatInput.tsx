@@ -11,6 +11,8 @@ type Props = {
     isSubmitting:boolean
 };
 
+const FASTAPI = process.env.FAST_API
+
 export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) {
         const [isRecording, setIsRecording] = useState(false);
         const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -72,7 +74,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
                 for (const [key, value] of formData.entries()) {
                     console.log(`${key}:`, value);
                 }
-                const { data } = await axios.post("/api/speech-to-text", formData, {
+                const { data } = await axios.post(`${FASTAPI}/api/speech-to-text`, formData, {
                     withCredentials: true
                 });
                 console.log(data);
