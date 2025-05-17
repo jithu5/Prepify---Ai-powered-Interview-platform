@@ -11,7 +11,7 @@ type Props = {
     isSubmitting:boolean
 };
 
-const FASTAPI = process.env.FAST_API
+const FASTAPI = process.env.NEXT_PUBLIC_FAST_API
 
 export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) {
         const [isRecording, setIsRecording] = useState(false);
