@@ -8,13 +8,19 @@ import numpy as np
 from pydub import AudioSegment
 import torch
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from dotenv import load_dotenv
+
+load_dotenv()  # Loads variables from .env
+
+origins = os.getenv("ALLOWED_ORIGINS", "")
+allow_origins = [origin.strip() for origin in origins.split(",") if origin.strip()]
 
 app = FastAPI()
 
 # CORS settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Update if needed
+    allow_origins=allow_origins,  # Update if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
