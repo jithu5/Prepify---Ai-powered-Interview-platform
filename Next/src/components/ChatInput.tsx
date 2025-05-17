@@ -1,6 +1,6 @@
 // components/ChatInput.tsx
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -15,9 +15,23 @@ const FASTAPI = process.env.NEXT_PUBLIC_FAST_API
 
 export default function ChatInput({ onSubmit, questionId, isSubmitting }: Props) {
     const [isRecording, setIsRecording] = useState(false);
+    const [textAnswer, setTextAnswer] = useState<string>("");
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+
+    const handleTextSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (textAnswer.trim()) {
+            try {
+                await onSubmit(textAnswer.trim(), questionId);
+                setTextAnswer("");
+            } catch (err) {
+                toast.error("Failed to submit answer.");
+            }
+        }
+    };
+
 
     // Start recording
     const startRecording = () => {
@@ -93,70 +107,79 @@ export default function ChatInput({ onSubmit, questionId, isSubmitting }: Props)
         }
     };
 
-    useEffect(() => {
-        toast.info(FASTAPI || "No fastapi route found")
-    }, [])
-
     return (
         <form
-            onSubmit={uploadAudio}
+            onSubmit={process.env.NODE_ENV === "production" ? handleTextSubmit : uploadAudio}
             encType="multipart/form-data"
-            className="flex flex-col items-center justify-center gap-5 fixed bottom-2 left-1/2 -translate-x-1/2"
+            className="flex flex-col items-center justify-center gap-5 fixed bottom-2 left-1/2 -translate-x-1/2 w-full px-4"
         >
-            {/* Recording Section */}
-            <div className="flex flex-col items-center justify-center gap-6 mt-4">
-
-                {/* Cool Wave Animation when recording */}
-                {isRecording && (
-                    <div className="flex items-center justify-center space-x-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <span
-                                key={i}
-                                className="w-2 rounded-full"
-                                style={{
-                                    animation: `wave 1.2s infinite ease-in-out`,
-                                    animationDelay: `${i * 0.2}s`,
-                                    height: "20px",
-                                    background: `linear-gradient(45deg, #60A5FA, #8B5CF6, #EC4899, #F59E0B)`,
-                                    backgroundSize: "400% 400%",
-                                    animationDirection: "alternate"
-                                }}
-                            ></span>
-                        ))}
-                    </div>
-                )}
-
-                {/* Buttons */}
-                <div className="flex gap-4">
+            {process.env.NODE_ENV === "production" ? (
+                // ✅ Production Mode: Text input
+                <div className="flex flex-col items-center gap-4 w-full max-w-xl">
+                    <textarea
+                        className="w-full p-3 rounded-lg border border-gray-300"
+                        placeholder="Type your answer..."
+                        rows={4}
+                        disabled={isSubmitting}
+                        onChange={(e) => setTextAnswer(e.target.value)}
+                    />
                     <Button
-                        type="button"
-                        onClick={isRecording ? stopRecording : startRecording}
-                        variant={isRecording ? "destructive" : "default"}
+                        type="submit"
+                        disabled={isSubmitting || !textAnswer.trim()}
                     >
-                        {isRecording ? "Stop Recording" : "Start Recording"}
-                    </Button>
-
-                    <Button
-                        type="button"
-                        onClick={uploadAudio}
-                        disabled={!audioBlob}
-                    >
-                        {isSubmitting ? "sending..." : "Send Audio"}
+                        {isSubmitting ? "Sending..." : "Send Answer"}
                     </Button>
                 </div>
-            </div>
+            ) : (
+                // 🧪 Development Mode: Audio input
+                <div className="flex flex-col items-center justify-center gap-6 mt-4">
+                    {isRecording && (
+                        <div className="flex items-center justify-center space-x-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <span
+                                    key={i}
+                                    className="w-2 rounded-full"
+                                    style={{
+                                        animation: `wave 1.2s infinite ease-in-out`,
+                                        animationDelay: `${i * 0.2}s`,
+                                        height: "20px",
+                                        background: `linear-gradient(45deg, #60A5FA, #8B5CF6, #EC4899, #F59E0B)`,
+                                        backgroundSize: "400% 400%",
+                                        animationDirection: "alternate"
+                                    }}
+                                ></span>
+                            ))}
+                        </div>
+                    )}
+                    <div className="flex gap-4">
+                        <Button
+                            type="button"
+                            onClick={isRecording ? stopRecording : startRecording}
+                            variant={isRecording ? "destructive" : "default"}
+                        >
+                            {isRecording ? "Stop Recording" : "Start Recording"}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={uploadAudio}
+                            disabled={!audioBlob}
+                        >
+                            {isSubmitting ? "Sending..." : "Send Audio"}
+                        </Button>
+                    </div>
+                </div>
+            )}
 
-            {/* Extra: Wave Animation Keyframes */}
             <style jsx>{`
-    @keyframes wave {
-      0%, 100% {
-        transform: scaleY(1);
-      }
-      50% {
-        transform: scaleY(2.5);
-      }
-    }
-  `}</style>
+            @keyframes wave {
+                0%, 100% {
+                    transform: scaleY(1);
+                }
+                50% {
+                    transform: scaleY(2.5);
+                }
+            }
+        `}</style>
         </form>
 
     );
