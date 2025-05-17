@@ -27,7 +27,13 @@ export default function ChatInput({ onSubmit, questionId, isSubmitting }: Props)
                 await onSubmit(textAnswer.trim(), questionId);
                 setTextAnswer("");
             } catch (err) {
-                toast.error("Failed to submit answer.");
+                if (axios.isAxiosError(err)) {
+
+                    const errMsg = err?.response?.data?.message || "Server error";
+                    toast.error(errMsg);
+                } else {
+                    toast.error("Server error in submitting")
+                }
             }
         }
     };
