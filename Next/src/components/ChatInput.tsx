@@ -1,6 +1,6 @@
 // components/ChatInput.tsx
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -82,7 +82,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
             } catch (err) {
                 if (axios.isAxiosError(err)) {
 
-                    const errMsg = err?.response?.data?.message;
+                    const errMsg = err?.response?.data?.message || "Server error";
                     toast.error(errMsg);
                 } else {
                     toast.error("Server error in submitting")
@@ -92,6 +92,11 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
             console.error("No audio data to upload.");
         }
     };
+
+    useEffect(() => {
+      toast.info(FASTAPI)
+    }, [])
+    
     return (
         <form
             onSubmit={uploadAudio}
