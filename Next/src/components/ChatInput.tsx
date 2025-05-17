@@ -6,19 +6,19 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 type Props = {
-    onSubmit: (answer:string,questionId:string) => void;
-    questionId:string
-    isSubmitting:boolean
+    onSubmit: (answer: string, questionId: string) => void;
+    questionId: string
+    isSubmitting: boolean
 };
 
 const FASTAPI = process.env.NEXT_PUBLIC_FAST_API
 
-export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) {
-        const [isRecording, setIsRecording] = useState(false);
-        const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-        const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-        const audioChunksRef = useRef<Blob[]>([]);
-    
+export default function ChatInput({ onSubmit, questionId, isSubmitting }: Props) {
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
     // Start recording
     const startRecording = () => {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -64,7 +64,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
     // Upload audio file
     const uploadAudio = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (audioBlob) {
             try {
                 const file = new File([audioBlob], "audio.wav", { type: audioBlob.type });
@@ -78,7 +78,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
                     withCredentials: true
                 });
                 console.log(data);
-                await onSubmit(data.transcription,questionId)
+                await onSubmit(data.transcription, questionId)
             } catch (err) {
                 if (axios.isAxiosError(err)) {
 
@@ -94,9 +94,9 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
     };
 
     useEffect(() => {
-      toast.info(FASTAPI)
+        toast.info(FASTAPI || "No fastapi route found")
     }, [])
-    
+
     return (
         <form
             onSubmit={uploadAudio}
@@ -141,7 +141,7 @@ export default function ChatInput({ onSubmit, questionId,isSubmitting }: Props) 
                         onClick={uploadAudio}
                         disabled={!audioBlob}
                     >
-                        {isSubmitting?"sending...":"Send Audio"}
+                        {isSubmitting ? "sending..." : "Send Audio"}
                     </Button>
                 </div>
             </div>
