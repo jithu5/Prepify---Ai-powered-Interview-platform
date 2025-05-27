@@ -32,12 +32,6 @@ export default function ChatSession({ session, isQuestionLoading, isFeedbackLoad
         <div className="space-y-4">
             {/* For the Question */}
             <AnimatePresence mode="wait" key={'questionContainer'}>
-                {isQuestionLoading && (
-                    <motion.div key="questionLoading" {...fadeIn}>
-                        <ChatBubble sender="questionPlaceholder" message="Loading question..." />
-                    </motion.div>
-                )}
-
                 {session.question && (
                     <motion.div key="question" {...fadeIn}>
                         <ChatBubble sender="ai" message={session.question} />
@@ -77,6 +71,14 @@ export default function ChatSession({ session, isQuestionLoading, isFeedbackLoad
                 {session.response?.score && (
                     <motion.div key="score" {...fadeIn} className="text-center text-lg text-stone-700">
                         Score: {session.response.score} / 10
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait" key={'loadingContainer'}>
+                {isQuestionLoading && (
+                    <motion.div key="questionLoading" {...fadeIn}>
+                        <ChatBubble sender="questionPlaceholder" message="Loading question..." />
                     </motion.div>
                 )}
             </AnimatePresence>
