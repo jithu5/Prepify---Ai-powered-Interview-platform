@@ -11,7 +11,12 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-/src/model/
+model/*
+/src/model
+/src/model/*
+/src/model/am/*
+/src/model/conf/*
+
 downloads/
 eggs/
 .eggs/
