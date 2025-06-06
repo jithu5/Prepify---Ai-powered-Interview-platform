@@ -1,5 +1,4 @@
 "use client"
-import { useSession } from "next-auth/react"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import Link from "next/link"
@@ -13,8 +12,13 @@ import OtpVerification from "./OtpVerificatin"
 import axios from "axios"
 import { toast } from "sonner"
 
+interface IUser{
+    isAccountVerified: boolean
+    email:string
+}
+
 function NavBar() {
-    const { data: session } = useSession()
+    const[user,setUser] = useState<IUser>();
     const router = useRouter()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
@@ -32,6 +36,20 @@ function NavBar() {
             document.removeEventListener("mousedown", handleClickOutside)
         }
     }, [])
+
+    useEffect(()=>{
+        const fetchUser = async () => {
+            const { data } = await axios.get("/api/auth/session")
+            if (data.success) {
+                setUser({
+                    isAccountVerified: data.user.is_account_verified,
+                    email:data.user.email
+                })
+                console.log(data.user);
+            }
+        }
+        fetchUser()
+    },[])
 
     const handleModalOpen = async () => {
         setSendingOtp(true)
@@ -70,7 +88,7 @@ function NavBar() {
                 <Link href='/community' className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>pricing</Link>
                 <Link href='/community' className="text-stone-700 font-semibold text-md hover:text-stone-900" style={{ fontFamily: 'Quicksand Variable' }}>community</Link>
                 {
-                    session?.user ? (
+                    user ? (
                         <>
                             <div className="relative" ref={menuRef}>
                                 <div
@@ -79,7 +97,7 @@ function NavBar() {
                                 >
                                     <Avatar>
                                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                                        <AvatarFallback>{session.user?.email?.[0]?.toUpperCase()}</AvatarFallback>
+                                        <AvatarFallback>{user?.email?.[0]?.toUpperCase()}</AvatarFallback>
                                     </Avatar>
                                 </div>
 
@@ -101,7 +119,7 @@ function NavBar() {
                                                     Settings
                                                 </button>
                                             </li>
-                                            {session?.user && !session.user.isAccountVerified && (
+                                            {user && !user.isAccountVerified && (
                                                 <li>
                                                     <button
                                                         disabled={sendingOtp}
@@ -130,7 +148,7 @@ function NavBar() {
                     )
                 }
             </div>
-            {modalOpen && session?.user && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={session?.user.email} type="verify" />}
+            {modalOpen && user && <OtpVerification open={modalOpen} onClose={() => setModalOpen(false)} email={user?.email} type="verify" />}
         </nav>
     )
 }
